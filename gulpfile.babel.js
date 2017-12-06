@@ -24,6 +24,7 @@ const sources = {
   scripts: 'assets/scripts/**/*.js',
   styles: 'assets/styles/**/*.scss',
   img: 'assets/img/*',
+  data: 'assets/data/*',
 };
 
 const vendorStyles = [];
@@ -31,6 +32,7 @@ const vendorStyles = [];
 const destinations = {
   root: 'public',
   img: 'public/img',
+  data: 'public/data',
 };
 
 const postCssPlugins = [autoprefixer];
@@ -52,6 +54,10 @@ gulp.task('generate-version', (done) => {
 gulp.task('img', () =>
   gulp.src(sources.img)
     .pipe(gulp.dest(destinations.img)));
+
+gulp.task('data', () =>
+  gulp.src(sources.data)
+    .pipe(gulp.dest(destinations.data)));
 
 gulp.task('scripts', () =>
   browserify(sources.entryPoint)
@@ -83,11 +89,14 @@ gulp.task('index', () =>
     .pipe(gulpRename((path) => {
       path.basename = path.basename.replace('.template', '');
     }))
-    .pipe(gulpReplace('version', version))
+    .pipe(gulpReplace('{version}', version))
     .pipe(gulp.dest(destinations.root))
     .pipe(process.argv.indexOf('dev') !== -1 ? gulpConnect.reload() : gulpUtil.noop()));
 
-gulp.task('resources', ['img']);
+gulp.task('resources', [
+  'img',
+  'data',
+]);
 
 gulp.task('build', () => {
   runSequence(

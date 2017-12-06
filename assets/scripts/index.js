@@ -1,29 +1,44 @@
 // Imports
+import { csv as d3csv } from 'd3-request/build/d3-request';
+import { queue as d3queue } from 'd3-queue';
 import { scaleLinear as d3scaleLinear } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
 
 import featureTemplate from './templates/featureTemplate';
-import getCpCoordinates from './services/getCpCoordinates';
+import parseCoordinatesData from './services/parseCoordinatesData';
+import parseRacesData from './services/parseRacesData';
 
 // Globals
-const cpCoordinates = getCpCoordinates();
-
-const mPerPx = ((432 / 84) + (432 / 84) + (635 / 124) + (635 / 124)) / 4;
-const xMin = -(820 + (2 / mPerPx)) * mPerPx;
-const xMax = (802 - (2 / mPerPx)) * mPerPx;
-const yMin = -(924 - (3 / mPerPx)) * mPerPx;
-const yMax = (220 + (3 / mPerPx)) * mPerPx;
-const ratio = (xMax - xMin) / (yMax - yMin);
+const races = [
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Ж4Б_В' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Ж4Б_СВ' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Ж4Б_Ю' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv', title: 'Ж4Б' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv', title: 'Ж4В_В' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv', title: 'Ж4В' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Ж4Б_В' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Ж4Б_СВ' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Ж4Б_Ю' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4Б.csv', title: 'М4Б' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv', title: 'М4В_В' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4В.csv', title: 'М4В' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv', title: 'МЖ4Б_В' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv', title: 'МЖ4Б_Ю' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv', title: 'МЖ4Б' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv', title: 'МЖ4В' },
+];
 
 const scales = {
-  x: d3scaleLinear().domain([xMin, xMax]),
-  y: d3scaleLinear().domain([yMin, yMax]),
+  x: d3scaleLinear(),
+  y: d3scaleLinear(),
 };
+
+let ratio;
 
 let $feature;
 let $checkpoints;
 
-let checkpointGroups;
+let d3checkpointGroups;
 
 // Window resize — set calculated size
 const resize = () => {
@@ -44,36 +59,93 @@ const resize = () => {
   scales.x.range([0, checkpointsWidth]);
   scales.y.range([checkpointsHeight, 0]);
 
-  checkpointGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+  d3checkpointGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
 };
 
+// Add resize event listener
 window.addEventListener('resize', resize);
 
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
   // Create layout
-  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(cpCoordinates, scales);
+  document.querySelector('.dl-feature-container').innerHTML = featureTemplate();
 
   $feature = document.querySelector('.dl-feature');
   $checkpoints = document.querySelector('.dl-checkpoints');
 
-  checkpointGroups = d3select('.dl-checkpoints svg')
-    .selectAll('g')
-    .data(cpCoordinates)
-    .enter()
-    .append('g')
-    .attr('class', 'dl-checkpoints__checkpoint');
+  // Get raw data
+  const q = d3queue();
 
-  checkpointGroups.append('text')
-    .attr('class', 'dl-checkpoints__checkpoint-caption')
-    .attr('y', -5)
-    .text(d => d.name);
+  races.forEach((r) => {
+    q.defer(d3csv, `/data/${r.fileName}`);
+  });
 
-  checkpointGroups.append('circle')
-    .attr('class', 'dl-checkpoints__checkpoint-mark')
-    .attr('r', 5);
+  q.defer(d3csv, '/data/Протокол.csv');
+  q.defer(d3csv, '/data/Координаты.csv');
 
-  resize();
+  q.awaitAll((error, rawData) => {
+    if (error) throw error;
+
+    // Parse races data
+    const racesData = parseRacesData(rawData.slice(0, -1), races);
+
+    // Parse coordinates data
+    const coordinates = parseCoordinatesData(rawData[rawData.length - 1]);
+
+    const pixels = {
+      start: {
+        left: 820,
+        top: 220,
+        right: 802,
+        bottom: 924,
+      },
+      common: {
+        left: 696,
+        top: 304,
+        right: 926,
+        bottom: 840,
+      },
+    };
+
+    const commonCP = coordinates.find(c => c.name === '32');
+    const startCP = coordinates.find(c => c.name === 'Старт');
+
+    const mPerPx = (
+      (Math.abs(startCP.y - commonCP.y) / Math.abs(pixels.start.top - pixels.common.top)) +
+      (Math.abs(startCP.y - commonCP.y) / Math.abs(pixels.start.bottom - pixels.common.bottom)) +
+      (Math.abs(startCP.x - commonCP.x) / Math.abs(pixels.start.left - pixels.common.left)) +
+      (Math.abs(startCP.x - commonCP.x) / Math.abs(pixels.start.right - pixels.common.right))
+    ) / 4;
+    const xMin = -(pixels.start.left - (startCP.x / mPerPx)) * mPerPx;
+    const xMax = (pixels.start.right + (startCP.x / mPerPx)) * mPerPx;
+    const yMin = -(pixels.start.bottom - (startCP.y / mPerPx)) * mPerPx;
+    const yMax = (pixels.start.top + (startCP.y / mPerPx)) * mPerPx;
+
+    ratio = (xMax - xMin) / (yMax - yMin);
+    scales.x.domain([xMin, xMax]);
+    scales.y.domain([yMin, yMax]);
+
+    // Add checkpoints
+    d3checkpointGroups = d3select('.dl-checkpoints svg')
+      .selectAll('g')
+      .data(coordinates)
+      .enter()
+      .append('g')
+      .attr('class', 'dl-checkpoints__checkpoint');
+
+    d3checkpointGroups.append('text')
+      .attr('class', 'dl-checkpoints__checkpoint-caption')
+      .attr('y', -5)
+      .text(d => d.name);
+
+    d3checkpointGroups.append('circle')
+      .attr('class', 'dl-checkpoints__checkpoint-mark')
+      .attr('r', 5);
+
+    // First resize
+    resize();
+  });
 };
 
+// Add DOMContentLoaded listener (entry point)
 document.addEventListener('DOMContentLoaded', DOMContentLoaded);
