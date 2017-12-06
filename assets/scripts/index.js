@@ -5,6 +5,7 @@ import { scaleLinear as d3scaleLinear } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
 
 import featureTemplate from './templates/featureTemplate';
+import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
 
@@ -90,7 +91,7 @@ const DOMContentLoaded = () => {
     const racesData = parseRacesData(rawData.slice(0, -1), races);
 
     // Parse coordinates data
-    const coordinates = parseCoordinatesData(rawData[rawData.length - 1]);
+    const coordinates = parseCoordinatesData(lastOf(rawData));
 
     const pixels = {
       start: {
