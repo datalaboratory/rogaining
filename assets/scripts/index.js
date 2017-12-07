@@ -1,7 +1,11 @@
 // Imports
 import { csv as d3csv } from 'd3-request/build/d3-request';
 import { queue as d3queue } from 'd3-queue';
-import { scaleLinear as d3scaleLinear } from 'd3-scale';
+import {
+  scaleLinear as d3scaleLinear,
+  scaleOrdinal as d3scaleOrdinal,
+  schemeCategory20 as d3schemeCategory20,
+} from 'd3-scale';
 import { select as d3select } from 'd3-selection';
 
 import featureTemplate from './templates/featureTemplate';
@@ -29,38 +33,91 @@ const races = [
   { fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv', title: 'МЖ4В' },
 ];
 
+const margin = {
+  top: 20,
+  right: 10,
+  bottom: 20,
+  left: 10,
+};
+
 const scales = {
   x: d3scaleLinear(),
   y: d3scaleLinear(),
+  color: d3scaleOrdinal(d3schemeCategory20),
 };
 
+let racesData;
+let selectedRace = 'Ж4Б_В';
+let selectedRaceData;
+let currentTime = 0;
+
+let startCP;
 let ratio;
 
-let $feature;
-let $checkpoints;
+let $featureMapContainer;
+let $map;
 
 let d3checkpointGroups;
+let d3participantsGroup;
+let d3participantGroups;
+
+// Set participants coordinates
+const setParticipantsCoordinates = (participants, reset = false) => {
+  if (reset) {
+    participants.forEach((p) => {
+      p.x = startCP.x;
+      p.y = startCP.y;
+    });
+  } else { }
+};
+
+// Init participant groups
+const initParicipantGroups = (participants) => {
+  d3participantsGroup
+    .selectAll('*')
+    .remove();
+
+  d3participantGroups = d3participantsGroup
+    .selectAll('g')
+    .data(participants)
+    .enter()
+    .append('g')
+    .attr('class', 'dl-map__g-participant');
+
+  d3participantGroups
+    .append('circle')
+    .attr('class', 'dl-map__g-participant-mark')
+    .attr('r', 2)
+    .attr('fill', d => scales.color(d.teamName));
+};
+
+// Place participants on map
+const placeParticipantsOnMap = () => {
+  d3participantGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+};
 
 // Window resize — set calculated size
 const resize = () => {
-  const { width, height } = $feature.getBoundingClientRect();
+  const { width, height } = $featureMapContainer.getBoundingClientRect();
 
-  let checkpointsWidth = width;
-  let checkpointsHeight = height;
+  let mapWidth = width;
+  let mapHeight = height;
 
   if (width > height * ratio) {
-    checkpointsWidth = height * ratio;
+    mapWidth = height * ratio;
   } else if (height > width / ratio) {
-    checkpointsHeight = width / ratio;
+    mapHeight = width / ratio;
   }
 
-  $checkpoints.style.width = `${checkpointsWidth}px`;
-  $checkpoints.style.height = `${checkpointsHeight}px`;
+  $map.style.width = `${mapWidth}px`;
+  $map.style.height = `${mapHeight}px`;
 
-  scales.x.range([0, checkpointsWidth]);
-  scales.y.range([checkpointsHeight, 0]);
+  scales.x.range([0, mapWidth - margin.left - margin.right]);
+  scales.y.range([mapHeight - margin.top - margin.bottom, 0]);
 
   d3checkpointGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+
+  placeParticipantsOnMap();
 };
 
 // Add resize event listener
@@ -69,10 +126,28 @@ window.addEventListener('resize', resize);
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
   // Create layout
-  document.querySelector('.dl-feature-container').innerHTML = featureTemplate();
+  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races);
 
-  $feature = document.querySelector('.dl-feature');
-  $checkpoints = document.querySelector('.dl-checkpoints');
+  const $featureRaceSelector = document.querySelector('.dl-feature__race-selector');
+
+  document.querySelector('.dl-feature__race-selector').addEventListener('change', () => {
+    selectedRace = $featureRaceSelector.value;
+    selectedRaceData = racesData.find(rd => rd.title === selectedRace).participants;
+    currentTime = 0;
+
+    setParticipantsCoordinates(selectedRaceData, true);
+    initParicipantGroups(selectedRaceData);
+    placeParticipantsOnMap();
+  });
+
+  $featureMapContainer = document.querySelector('.dl-feature__map-container');
+  $map = document.querySelector('.dl-map');
+  const $mapBackgroundImage = document.querySelector('.dl-map__background-image');
+
+  $mapBackgroundImage.style.top = `${margin.top}px`;
+  $mapBackgroundImage.style.left = `${margin.left}px`;
+  $mapBackgroundImage.style.width = `calc(100% - ${margin.left + margin.right}px`;
+  $mapBackgroundImage.style.height = `calc(100% - ${margin.top + margin.bottom}px`;
 
   // Get raw data
   const q = d3queue();
@@ -88,7 +163,8 @@ const DOMContentLoaded = () => {
     if (error) throw error;
 
     // Parse races data
-    const racesData = parseRacesData(rawData.slice(0, -1), races);
+    racesData = parseRacesData(rawData.slice(0, -1), races);
+    selectedRaceData = racesData.find(rd => rd.title === selectedRace).participants;
 
     // Parse coordinates data
     const coordinates = parseCoordinatesData(lastOf(rawData));
@@ -109,7 +185,7 @@ const DOMContentLoaded = () => {
     };
 
     const commonCP = coordinates.find(c => c.name === '32');
-    const startCP = coordinates.find(c => c.name === 'Старт');
+    startCP = coordinates.find(c => c.name === 'Старт');
 
     const mPerPx = (
       (Math.abs(startCP.y - commonCP.y) / Math.abs(pixels.start.top - pixels.common.top)) +
@@ -127,21 +203,38 @@ const DOMContentLoaded = () => {
     scales.y.domain([yMin, yMax]);
 
     // Add checkpoints
-    d3checkpointGroups = d3select('.dl-checkpoints svg')
+    const d3RootGroup = d3select('.dl-map svg')
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    d3checkpointGroups = d3RootGroup
+      .append('g')
+      .attr('class', 'dl-map__g-checkpoints')
       .selectAll('g')
       .data(coordinates)
       .enter()
       .append('g')
-      .attr('class', 'dl-checkpoints__checkpoint');
+      .attr('class', 'dl-map__g-checkpoint');
 
-    d3checkpointGroups.append('text')
-      .attr('class', 'dl-checkpoints__checkpoint-caption')
+    d3checkpointGroups
+      .append('text')
+      .attr('class', 'dl-map__g-checkpoint-caption')
       .attr('y', -5)
       .text(d => d.name);
 
-    d3checkpointGroups.append('circle')
-      .attr('class', 'dl-checkpoints__checkpoint-mark')
+    d3checkpointGroups
+      .append('circle')
+      .attr('class', 'dl-map__g-checkpoint-mark')
       .attr('r', 5);
+
+    // Add participants
+    d3participantsGroup = d3RootGroup
+      .append('g')
+      .attr('class', 'dl-map__g-participants');
+
+    setParticipantsCoordinates(selectedRaceData, true);
+    initParicipantGroups(selectedRaceData);
+    placeParticipantsOnMap();
 
     // First resize
     resize();
