@@ -47,12 +47,12 @@ const scales = {
   color: d3scaleOrdinal(d3schemeCategory20),
 };
 
+let coordinates;
 let racesData;
 let selectedRace = 'Ж4Б_В';
 let selectedRaceParticipants;
 let currentTime = 0;
 
-let startCP;
 let ratio;
 
 let $timeSlider;
@@ -64,24 +64,40 @@ let d3participantsGroup;
 let d3participantGroups;
 
 // Set participants coordinates
-const setParticipantsCoordinates = (participants, reset = false) => {
-  if (reset) {
-    participants.forEach((p) => {
-      p.x = startCP.x;
-      p.y = startCP.y;
-    });
-  } else { }
+const setParticipantsCoordinates = () => {
+  selectedRaceParticipants.forEach((p) => {
+    const nextCPIndex = p.checkpoints.findIndex(cp => cp.fromStart > currentTime);
+    const nextCP = p.checkpoints[nextCPIndex];
+    const currentCP = p.checkpoints[nextCPIndex - 1];
+
+    if (!currentCP) {
+      const currentCoordinates = coordinates.find(c => c.name === 'Старт');
+
+      p.x = currentCoordinates.x;
+      p.y = currentCoordinates.y;
+    } else {
+      const nextCoordinates = coordinates.find(c => c.name === nextCP.name);
+      const currentCoordinates = coordinates.find(c => c.name === currentCP.name);
+      const xSpeed = (nextCoordinates.x - currentCoordinates.x) /
+        (nextCP.fromStart - currentCP.fromStart);
+      const ySpeed = (nextCoordinates.y - currentCoordinates.y) /
+        (nextCP.fromStart - currentCP.fromStart);
+
+      p.x = currentCoordinates.x + ((currentTime - currentCP.fromStart) * xSpeed);
+      p.y = currentCoordinates.y + ((currentTime - currentCP.fromStart) * ySpeed);
+    }
+  });
 };
 
 // Init participant groups
-const initParicipantGroups = (participants) => {
+const initParicipantGroups = () => {
   d3participantsGroup
     .selectAll('*')
     .remove();
 
   d3participantGroups = d3participantsGroup
     .selectAll('g')
-    .data(participants)
+    .data(selectedRaceParticipants)
     .enter()
     .append('g')
     .attr('class', 'dl-map__g-participant');
@@ -146,8 +162,8 @@ const DOMContentLoaded = () => {
 
     $timeSlider.noUiSlider.set(currentTime);
 
-    setParticipantsCoordinates(selectedRaceParticipants, true);
-    initParicipantGroups(selectedRaceParticipants);
+    setParticipantsCoordinates();
+    initParicipantGroups();
     placeParticipantsOnMap();
   });
 
@@ -196,11 +212,12 @@ const DOMContentLoaded = () => {
       .on('slide', (values, handle) => {
         currentTime = +values[handle];
 
+        setParticipantsCoordinates();
         placeParticipantsOnMap();
       });
 
     // Parse coordinates data
-    const coordinates = parseCoordinatesData(lastOf(rawData));
+    coordinates = parseCoordinatesData(lastOf(rawData));
 
     const pixels = {
       start: {
@@ -218,7 +235,7 @@ const DOMContentLoaded = () => {
     };
 
     const commonCP = coordinates.find(c => c.name === '32');
-    startCP = coordinates.find(c => c.name === 'Старт');
+    const startCP = coordinates.find(c => c.name === 'Старт');
 
     const mPerPx = (
       (Math.abs(startCP.y - commonCP.y) / Math.abs(pixels.start.top - pixels.common.top)) +
@@ -265,8 +282,8 @@ const DOMContentLoaded = () => {
       .append('g')
       .attr('class', 'dl-map__g-participants');
 
-    setParticipantsCoordinates(selectedRaceParticipants, true);
-    initParicipantGroups(selectedRaceParticipants);
+    setParticipantsCoordinates();
+    initParicipantGroups();
     placeParticipantsOnMap();
 
     // First resize

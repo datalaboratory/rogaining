@@ -7,25 +7,25 @@ const applyProtocolAdjustment = (participant, protocol) => {
   const participantData = {
     points: parseInt(participant['***'], 10) || 0,
     time: hhmmssToSeconds(participant['Результат']),
-    path: Object.keys(participant)
+    checkpoints: Object.keys(participant)
       .filter(key =>
         key.indexOf('#') !== -1 &&
         participant[key] &&
         participant[key].match(/\[(.*?)\]/))
       .sort((a, b) => +a.split('#')[1] - +b.split('#')[1])
       .map(key => ({
-        checkpoint: participant[key].match(/\[(.*?)\]/)[1],
+        name: participant[key].match(/\[(.*?)\]/)[1],
         fromStart: hhmmssToSeconds(participant[key].split('[')[0]),
       })),
   };
 
-  participantData.path.unshift({
-    checkpoint: 'Старт',
+  participantData.checkpoints.unshift({
+    name: 'Старт',
     fromStart: 0,
   });
 
-  participantData.path.push({
-    checkpoint: 'Старт',
+  participantData.checkpoints.push({
+    name: 'Старт',
     fromStart: participantData.time,
   });
 
@@ -39,20 +39,20 @@ const applyProtocolAdjustment = (participant, protocol) => {
       const parsedAdjustment = pa['Корректировка'].split('-');
       const aFirstIndex = parsedAdjustment[0] === 'старт' ?
         0 :
-        participantData.path.findIndex(p => p.checkpoint === parsedAdjustment[0]);
+        participantData.checkpoints.findIndex(p => p.name === parsedAdjustment[0]);
       const aSecondIndex = parsedAdjustment[2] === 'финиш' ?
-        participantData.path.length - 1 :
-        participantData.path.findIndex(p => p.checkpoint === parsedAdjustment[2]);
+        participantData.checkpoints.length - 1 :
+        participantData.checkpoints.findIndex(p => p.name === parsedAdjustment[2]);
 
       if ((aFirstIndex !== -1 && aSecondIndex !== -1) &&
         (!(aSecondIndex - aFirstIndex) || aSecondIndex - aFirstIndex === 1)) {
         // Adjustment can be applied
-        const fromFirstToSecond = participantData.path[aSecondIndex].fromStart -
-          participantData.path[aFirstIndex].fromStart;
+        const fromFirstToSecond = participantData.checkpoints[aSecondIndex].fromStart -
+          participantData.checkpoints[aFirstIndex].fromStart;
 
-        participantData.path.splice(aSecondIndex, 0, {
-          checkpoint: parsedAdjustment[1],
-          fromStart: participantData.path[aFirstIndex].fromStart + Math.ceil(fromFirstToSecond / 2),
+        participantData.checkpoints.splice(aSecondIndex, 0, {
+          name: parsedAdjustment[1],
+          fromStart: participantData.checkpoints[aFirstIndex].fromStart + Math.ceil(fromFirstToSecond / 2),
         });
 
         participantData.points += +parsedAdjustment[1][0];
@@ -67,7 +67,7 @@ const parseRacesData = (rawData, races) =>
   races.map((r, i) => ({
     title: r.title,
     participants: rawData[i].map(rd => Object.assign(
-      // Participant data contains of two objects — static data and path data
+      // Participant data contains of two objects — static data and checkpoints data
       {
         number: rd['Номер'],
         teamName: rd['Команда'],
