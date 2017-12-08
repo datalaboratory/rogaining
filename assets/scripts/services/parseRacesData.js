@@ -16,9 +16,18 @@ const applyProtocolAdjustment = (participant, protocol) => {
       .map(key => ({
         checkpoint: participant[key].match(/\[(.*?)\]/)[1],
         fromStart: hhmmssToSeconds(participant[key].split('[')[0]),
-        fromPrevious: hhmmssToSeconds(participant[key].split(']')[1]),
       })),
   };
+
+  participantData.path.unshift({
+    checkpoint: 'Старт',
+    fromStart: 0,
+  });
+
+  participantData.path.push({
+    checkpoint: 'Старт',
+    fromStart: participantData.time,
+  });
 
   const protocolAdjustment = protocol.filter(p =>
     p['Команда'] === participant['Номер'] ||
@@ -38,34 +47,13 @@ const applyProtocolAdjustment = (participant, protocol) => {
       if ((aFirstIndex !== -1 && aSecondIndex !== -1) &&
         (!(aSecondIndex - aFirstIndex) || aSecondIndex - aFirstIndex === 1)) {
         // Adjustment can be applied
-        const item = { checkpoint: parsedAdjustment[1] };
+        const fromFirstToSecond = participantData.path[aSecondIndex].fromStart -
+          participantData.path[aFirstIndex].fromStart;
 
-        if (!aFirstIndex) {
-          // Beginning of path
-          item.fromStart = Math.ceil(participantData.path[0].fromStart / 2);
-          item.fromPrevious = 0;
-
-          participantData.path.unshift(item);
-
-          participantData.path[1].fromPrevious = Math.floor(participantData.path[1].fromStart / 2);
-        } else if (aFirstIndex === participantData.path.length - 1) {
-          // End of path
-          const fromFirstToSecond = participantData.time - lastOf(participantData.path).fromStart;
-
-          item.fromStart = lastOf(participantData.path).fromStart + Math.ceil(fromFirstToSecond / 2);
-          item.fromPrevious = Math.floor(fromFirstToSecond / 2);
-
-          participantData.path.push(item);
-        } else {
-          // Somewhere along path
-          const fromFirstToSecond = participantData.path[aSecondIndex].fromStart -
-            participantData.path[aFirstIndex].fromStart;
-
-          item.fromStart = participantData.path[aFirstIndex].fromStart + Math.ceil(fromFirstToSecond / 2);
-          item.fromPrevious = Math.floor(fromFirstToSecond / 2);
-
-          participantData.path.splice(aSecondIndex, 0, item);
-        }
+        participantData.path.splice(aSecondIndex, 0, {
+          checkpoint: parsedAdjustment[1],
+          fromStart: participantData.path[aFirstIndex].fromStart + Math.ceil(fromFirstToSecond / 2),
+        });
 
         participantData.points += +parsedAdjustment[1][0];
       }
