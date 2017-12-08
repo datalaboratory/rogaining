@@ -1,8 +1,8 @@
 import mapTemplate from './mapTemplate';
 
-const featureTemplate = (races) => {
+const featureTemplate = (races, selectedRace) => {
   const raceSelectOptions = races
-    .map((r, i) => `<option${!i ? ' selected' : ''}>${r.title}</option>`)
+    .map(r => `<option${r.title === selectedRace ? ' selected' : ''}>${r.title}</option>`)
     .join('');
 
   return `

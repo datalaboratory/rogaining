@@ -49,7 +49,7 @@ const scales = {
 
 let coordinates;
 let racesData;
-let selectedRace = 'Ж4Б_В';
+let selectedRace = 'М4Б';
 let selectedRaceParticipants;
 let currentTime = 0;
 
@@ -144,7 +144,7 @@ window.addEventListener('resize', resize);
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
   // Create layout
-  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races);
+  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races, selectedRace);
 
   const $featureRaceSelect = document.querySelector('.dl-feature__race-select');
 
