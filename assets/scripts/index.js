@@ -1,12 +1,13 @@
 // Imports
-import { csv as d3csv } from 'd3-request/build/d3-request';
 import { queue as d3queue } from 'd3-queue';
+import { csv as d3csv } from 'd3-request/build/d3-request';
 import {
   scaleLinear as d3scaleLinear,
   scaleOrdinal as d3scaleOrdinal,
   schemeCategory20 as d3schemeCategory20,
 } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
+import nouislider from 'nouislider';
 
 import featureTemplate from './templates/featureTemplate';
 import lastOf from './tools/lastOf';
@@ -48,12 +49,13 @@ const scales = {
 
 let racesData;
 let selectedRace = 'Ж4Б_В';
-let selectedRaceData;
+let selectedRaceParticipants;
 let currentTime = 0;
 
 let startCP;
 let ratio;
 
+let $timeSlider;
 let $featureMapContainer;
 let $map;
 
@@ -128,17 +130,28 @@ const DOMContentLoaded = () => {
   // Create layout
   document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races);
 
-  const $featureRaceSelector = document.querySelector('.dl-feature__race-selector');
+  const $featureRaceSelect = document.querySelector('.dl-feature__race-select');
 
-  document.querySelector('.dl-feature__race-selector').addEventListener('change', () => {
-    selectedRace = $featureRaceSelector.value;
-    selectedRaceData = racesData.find(rd => rd.title === selectedRace).participants;
+  $featureRaceSelect.addEventListener('change', () => {
+    selectedRace = $featureRaceSelect.value;
+    selectedRaceParticipants = racesData.find(rd => rd.title === selectedRace).participants;
     currentTime = 0;
 
-    setParticipantsCoordinates(selectedRaceData, true);
-    initParicipantGroups(selectedRaceData);
+    $timeSlider.noUiSlider.updateOptions({
+      range: {
+        min: 0,
+        max: Math.max(...selectedRaceParticipants.map(p => p.time)),
+      },
+    });
+
+    $timeSlider.noUiSlider.set(currentTime);
+
+    setParticipantsCoordinates(selectedRaceParticipants, true);
+    initParicipantGroups(selectedRaceParticipants);
     placeParticipantsOnMap();
   });
+
+  $timeSlider = document.querySelector('.dl-feature__time-slider');
 
   $featureMapContainer = document.querySelector('.dl-feature__map-container');
   $map = document.querySelector('.dl-map');
@@ -164,7 +177,27 @@ const DOMContentLoaded = () => {
 
     // Parse races data
     racesData = parseRacesData(rawData.slice(0, -1), races);
-    selectedRaceData = racesData.find(rd => rd.title === selectedRace).participants;
+    selectedRaceParticipants = racesData.find(rd => rd.title === selectedRace).participants;
+
+    // Create time slider
+    nouislider
+      .create($timeSlider, {
+        start: 0,
+        connect: [
+          true,
+          false,
+        ],
+        range: {
+          min: 0,
+          max: Math.max(...selectedRaceParticipants.map(p => p.time)),
+        },
+        step: 60,
+      })
+      .on('slide', (values, handle) => {
+        currentTime = +values[handle];
+
+        placeParticipantsOnMap();
+      });
 
     // Parse coordinates data
     const coordinates = parseCoordinatesData(lastOf(rawData));
@@ -232,8 +265,8 @@ const DOMContentLoaded = () => {
       .append('g')
       .attr('class', 'dl-map__g-participants');
 
-    setParticipantsCoordinates(selectedRaceData, true);
-    initParicipantGroups(selectedRaceData);
+    setParticipantsCoordinates(selectedRaceParticipants, true);
+    initParicipantGroups(selectedRaceParticipants);
     placeParticipantsOnMap();
 
     // First resize

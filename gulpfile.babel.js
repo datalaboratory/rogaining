@@ -27,7 +27,7 @@ const sources = {
   data: 'assets/data/*',
 };
 
-const vendorStyles = [];
+const vendorStyles = ['node_modules/nouislider/distribute/nouislider.min.css'];
 
 const destinations = {
   root: 'public',

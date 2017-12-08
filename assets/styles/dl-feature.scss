@@ -4,11 +4,28 @@
   width: 100%;
   height: 100%;
 
-  &__race-selector {
+  &__controls {
+    display: flex;
+
+    height: 20%;
+  }
+
+  &__race-select {
+    align-self: flex-start;
+
     font-family: $sans-serif;
     font-size: 16px;
 
     &:focus {
+      outline: none;
+    }
+  }
+
+  &__time-slider {
+    width: 300px;
+    margin-left: 60px;
+
+    & .noUi-handle:focus {
       outline: none;
     }
   }
