@@ -104,8 +104,8 @@ const initParicipantGroups = () => {
   d3participantGroups
     .append('circle')
     .attr('class', 'dl-map__participant-mark')
-    .attr('r', 2)
-    .attr('fill', d => scales.participantColor(d.teamName));
+    .attr('r', 3)
+    .attr('fill', '#999');
 };
 
 // Set participants coordinates
@@ -302,7 +302,7 @@ const DOMContentLoaded = () => {
       .enter()
       .append('circle')
       .attr('class', 'dl-map__checkpoint-mark')
-      .attr('fill', d => (d.name === 'Старт' ? 'none' : scales.cpColor(d.name[0])))
+      .attr('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
       .attr('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
 
     d3checkpointCaptions = d3checkpointsGroup
