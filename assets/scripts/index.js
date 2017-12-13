@@ -16,6 +16,7 @@ import getSequentialColors from './services/getSequentialColors';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
+import getPossibleLinks from './services/getPossibleLinks';
 
 // Globals
 const races = [
@@ -51,9 +52,12 @@ const scales = {
   cpColor: d3scaleOrdinal(),
   cpRadius: d3scaleSqrt()
     .range([5, 20]),
+  linkWidth: d3scaleLinear()
+    .range([1, 15]),
 };
 
 let coordinates;
+let links;
 let racesData;
 let selectedRace = 'Мужчины, 4 часа бегом';
 let selectedRaceParticipants;
@@ -67,6 +71,7 @@ let $map;
 
 let d3checkpointMarks;
 let d3checkpointCaptions;
+let d3links;
 let d3participantsGroup;
 let d3participantGroups;
 
@@ -84,8 +89,31 @@ const updateCheckpoints = () => {
 
   scales.cpRadius.domain([0, Math.max(...coordinates.map(c => c.popularity))]);
 
-  d3checkpointMarks.attr('r', d => scales.cpRadius(d.popularity));
-  d3checkpointCaptions.attr('dx', d => scales.cpRadius(d.popularity) + 3);
+  d3checkpointMarks
+    .attr('r', d => scales.cpRadius(d.popularity))
+    .attr('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
+
+  d3checkpointCaptions
+    .attr('dx', d => scales.cpRadius(d.popularity) + 3)
+    .attr('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
+};
+
+const updateLinks = () => {
+  links.forEach((l) => {
+    l.popularity = selectedRaceParticipants
+      .map(srp => (srp.checkpoints
+        .map(cp => cp.name)
+        .join('-')
+        .indexOf(l.name) !== -1 ? 1 : 0))
+      .reduce((a, b) => a + b, 0);
+  });
+
+  scales.linkWidth.domain([
+    Math.min(...links.map(l => l.popularity).filter(p => p)),
+    Math.max(...links.map(l => l.popularity).filter(p => p)),
+  ]);
+
+  d3links.attr('stroke-width', d => (d.popularity ? scales.linkWidth(d.popularity) : 0));
 };
 
 // Init participant groups
@@ -161,6 +189,12 @@ const resize = () => {
   d3checkpointMarks.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
   d3checkpointCaptions.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
 
+  d3links
+    .attr('x1', d => scales.x(d.x1))
+    .attr('y1', d => scales.y(d.y1))
+    .attr('x2', d => scales.x(d.x2))
+    .attr('y2', d => scales.y(d.y2));
+
   placeParticipantsOnMap();
 };
 
@@ -189,6 +223,7 @@ const DOMContentLoaded = () => {
     $timeSlider.noUiSlider.set(currentTime);
 
     updateCheckpoints();
+    updateLinks();
     initParicipantGroups();
     setParticipantsCoordinates();
     placeParticipantsOnMap();
@@ -245,6 +280,7 @@ const DOMContentLoaded = () => {
 
     // Parse coordinates data
     coordinates = parseCoordinatesData(lastOf(rawData));
+    links = getPossibleLinks(coordinates);
 
     const uniqCpPoints = uniq(coordinates.map(c => +c.name[0]))
       .filter(Boolean)
@@ -287,12 +323,23 @@ const DOMContentLoaded = () => {
     scales.x.domain([xMin, xMax]);
     scales.y.domain([yMin, yMax]);
 
-    // Add checkpoints
-    const d3RootGroup = d3select('.dl-map svg')
+    const d3rootGroup = d3select('.dl-map svg')
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    const d3checkpointsGroup = d3RootGroup
+    // Add links
+    d3links = d3rootGroup
+      .append('g')
+      .attr('class', 'dl-map__links')
+      .selectAll('line')
+      .data(links)
+      .enter()
+      .append('line')
+      .attr('class', 'dl-map__link')
+      .attr('stroke', '#eee');
+
+    // Add checkpoints
+    const d3checkpointsGroup = d3rootGroup
       .append('g')
       .attr('class', 'dl-map__checkpoints');
 
@@ -314,11 +361,12 @@ const DOMContentLoaded = () => {
       .text(d => d.name);
 
     // Add participants
-    d3participantsGroup = d3RootGroup
+    d3participantsGroup = d3rootGroup
       .append('g')
       .attr('class', 'dl-map__participants');
 
     updateCheckpoints();
+    updateLinks();
     initParicipantGroups();
     setParticipantsCoordinates();
     placeParticipantsOnMap();
