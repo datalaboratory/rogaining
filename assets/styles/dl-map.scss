@@ -16,28 +16,17 @@
     height: 100%;
   }
 
-  &__g-checkpoint {
-    &-caption {
-      font-family: $sans-serif;
-      font-size: 14px;
+  &__checkpoint-caption {
+    text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 4px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 4px #fff;
 
-      text-anchor: middle;
-      dominant-baseline: ideographic;
-      font-feature-settings: 'tnum';
-      font-variant-numeric: tabular-nums;
-      fill: #333;
-    }
+    font-family: $sans-serif;
+    font-size: 12px;
 
-    &-mark {
-      opacity: 0.5;
-
-      stroke: #fc4503;
-      stroke-width: 2;
-      fill: none;
-    }
+    dominant-baseline: central;
+    fill: #666;
   }
 
-  &__g-participant {
+  &__participant {
     &-mark {
       opacity: 0.9;
 

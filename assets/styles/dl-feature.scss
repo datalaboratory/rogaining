@@ -7,7 +7,7 @@
   &__controls {
     display: flex;
 
-    height: 20%;
+    height: 100px;
   }
 
   &__race-select {
@@ -31,6 +31,6 @@
   }
 
   &__map-container {
-    height: 80%;
+    height: calc(100% - 100px);
   }
 }

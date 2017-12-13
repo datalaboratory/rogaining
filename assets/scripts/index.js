@@ -4,52 +4,58 @@ import { csv as d3csv } from 'd3-request/build/d3-request';
 import {
   scaleLinear as d3scaleLinear,
   scaleOrdinal as d3scaleOrdinal,
+  scaleSqrt as d3scaleSqrt,
   schemeCategory20 as d3schemeCategory20,
 } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
+import uniq from 'lodash.uniq';
 import nouislider from 'nouislider';
 
 import featureTemplate from './templates/featureTemplate';
+import getSequentialColors from './services/getSequentialColors';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
 
 // Globals
 const races = [
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Ж4Б_В' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Ж4Б_СВ' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Ж4Б_Ю' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv', title: 'Ж4Б' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv', title: 'Ж4В_В' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv', title: 'Ж4В' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Ж4Б_В' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Ж4Б_СВ' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Ж4Б_Ю' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4Б.csv', title: 'М4Б' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv', title: 'М4В_В' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4В.csv', title: 'М4В' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv', title: 'МЖ4Б_В' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv', title: 'МЖ4Б_Ю' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv', title: 'МЖ4Б' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv', title: 'МЖ4В' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4Б.csv', title: 'Мужчины, 4 часа бегом' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4Б_Ю.csv', title: 'Мужчины, 4 часа бегом (юниоры)' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4Б_В.csv', title: 'Мужчины, 4 часа бегом (ветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4Б_СВ.csv', title: 'Мужчины, 4 часа бегом (суперветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4В.csv', title: 'Мужчины, 4 часа на велосипеде' },
+  { fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv', title: 'Мужчины, 4 часа на велосипеде (ветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv', title: 'Женщины, 4 часа бегом' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Женщины, 4 часа бегом (юниоры)' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Женщины, 4 часа бегом (ветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Женщины, 4 часа бегом (суперветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv', title: 'Женщины, 4 часа на велосипеде' },
+  { fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv', title: 'Женщины, 4 часа на велосипеде (ветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv', title: 'Мужчины и женщины, 4 часа бегом' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv', title: 'Мужчины и женщины, 4 часа бегом (юниоры)' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv', title: 'Мужчины и женщины, 4 часа бегом (ветераны)' },
+  { fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv', title: 'Мужчины и женщины, 4 часа на велосипеде' },
 ];
 
 const margin = {
-  top: 20,
-  right: 10,
-  bottom: 20,
-  left: 10,
+  top: 10,
+  right: 30,
+  bottom: 10,
+  left: 30,
 };
 
 const scales = {
   x: d3scaleLinear(),
   y: d3scaleLinear(),
-  color: d3scaleOrdinal(d3schemeCategory20),
+  participantColor: d3scaleOrdinal(d3schemeCategory20),
+  cpColor: d3scaleOrdinal(),
+  cpRadius: d3scaleSqrt()
+    .range([5, 20]),
 };
 
 let coordinates;
 let racesData;
-let selectedRace = 'М4Б';
+let selectedRace = 'Мужчины, 4 часа бегом';
 let selectedRaceParticipants;
 let currentTime = 0;
 
@@ -59,9 +65,48 @@ let $timeSlider;
 let $featureMapContainer;
 let $map;
 
-let d3checkpointGroups;
+let d3checkpointMarks;
+let d3checkpointCaptions;
 let d3participantsGroup;
 let d3participantGroups;
+
+// Update checkpoints
+const updateCheckpoints = () => {
+  coordinates.forEach((c) => {
+    if (c.name === 'Старт') {
+      c.popularity = 0;
+    } else {
+      c.popularity = selectedRaceParticipants
+        .map(srp => (srp.checkpoints.find(cp => cp.name === c.name) ? 1 : 0))
+        .reduce((a, b) => a + b, 0);
+    }
+  });
+
+  scales.cpRadius.domain([0, Math.max(...coordinates.map(c => c.popularity))]);
+
+  d3checkpointMarks.attr('r', d => scales.cpRadius(d.popularity));
+  d3checkpointCaptions.attr('dx', d => scales.cpRadius(d.popularity) + 3);
+};
+
+// Init participant groups
+const initParicipantGroups = () => {
+  d3participantsGroup
+    .selectAll('*')
+    .remove();
+
+  d3participantGroups = d3participantsGroup
+    .selectAll('g')
+    .data(selectedRaceParticipants)
+    .enter()
+    .append('g')
+    .attr('class', 'dl-map__participant');
+
+  d3participantGroups
+    .append('circle')
+    .attr('class', 'dl-map__participant-mark')
+    .attr('r', 2)
+    .attr('fill', d => scales.participantColor(d.teamName));
+};
 
 // Set participants coordinates
 const setParticipantsCoordinates = () => {
@@ -89,26 +134,6 @@ const setParticipantsCoordinates = () => {
   });
 };
 
-// Init participant groups
-const initParicipantGroups = () => {
-  d3participantsGroup
-    .selectAll('*')
-    .remove();
-
-  d3participantGroups = d3participantsGroup
-    .selectAll('g')
-    .data(selectedRaceParticipants)
-    .enter()
-    .append('g')
-    .attr('class', 'dl-map__g-participant');
-
-  d3participantGroups
-    .append('circle')
-    .attr('class', 'dl-map__g-participant-mark')
-    .attr('r', 2)
-    .attr('fill', d => scales.color(d.teamName));
-};
-
 // Place participants on map
 const placeParticipantsOnMap = () => {
   d3participantGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
@@ -133,7 +158,8 @@ const resize = () => {
   scales.x.range([0, mapWidth - margin.left - margin.right]);
   scales.y.range([mapHeight - margin.top - margin.bottom, 0]);
 
-  d3checkpointGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+  d3checkpointMarks.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+  d3checkpointCaptions.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
 
   placeParticipantsOnMap();
 };
@@ -162,8 +188,9 @@ const DOMContentLoaded = () => {
 
     $timeSlider.noUiSlider.set(currentTime);
 
-    setParticipantsCoordinates();
+    updateCheckpoints();
     initParicipantGroups();
+    setParticipantsCoordinates();
     placeParticipantsOnMap();
   });
 
@@ -219,6 +246,14 @@ const DOMContentLoaded = () => {
     // Parse coordinates data
     coordinates = parseCoordinatesData(lastOf(rawData));
 
+    const uniqCpPoints = uniq(coordinates.map(c => +c.name[0]))
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+
+    scales.cpColor
+      .domain(uniqCpPoints)
+      .range(getSequentialColors(uniqCpPoints.length));
+
     const pixels = {
       start: {
         left: 820,
@@ -257,33 +292,35 @@ const DOMContentLoaded = () => {
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    d3checkpointGroups = d3RootGroup
+    const d3checkpointsGroup = d3RootGroup
       .append('g')
-      .attr('class', 'dl-map__g-checkpoints')
-      .selectAll('g')
+      .attr('class', 'dl-map__checkpoints');
+
+    d3checkpointMarks = d3checkpointsGroup
+      .selectAll('circle')
       .data(coordinates)
       .enter()
-      .append('g')
-      .attr('class', 'dl-map__g-checkpoint');
-
-    d3checkpointGroups
-      .append('text')
-      .attr('class', 'dl-map__g-checkpoint-caption')
-      .attr('y', -5)
-      .text(d => d.name);
-
-    d3checkpointGroups
       .append('circle')
-      .attr('class', 'dl-map__g-checkpoint-mark')
-      .attr('r', 5);
+      .attr('class', 'dl-map__checkpoint-mark')
+      .attr('fill', d => (d.name === 'Старт' ? 'none' : scales.cpColor(d.name[0])))
+      .attr('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
+
+    d3checkpointCaptions = d3checkpointsGroup
+      .selectAll('text')
+      .data(coordinates)
+      .enter()
+      .append('text')
+      .attr('class', 'dl-map__checkpoint-caption')
+      .text(d => d.name);
 
     // Add participants
     d3participantsGroup = d3RootGroup
       .append('g')
-      .attr('class', 'dl-map__g-participants');
+      .attr('class', 'dl-map__participants');
 
-    setParticipantsCoordinates();
+    updateCheckpoints();
     initParicipantGroups();
+    setParticipantsCoordinates();
     placeParticipantsOnMap();
 
     // First resize
