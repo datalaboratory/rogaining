@@ -53,7 +53,7 @@ const scales = {
   cpRadius: d3scaleSqrt()
     .range([5, 20]),
   linkWidth: d3scaleLinear()
-    .range([1, 15]),
+    .range([0, 20]),
 };
 
 let coordinates;
@@ -101,19 +101,21 @@ const updateCheckpoints = () => {
 const updateLinks = () => {
   links.forEach((l) => {
     l.popularity = selectedRaceParticipants
-      .map(srp => (srp.checkpoints
-        .map(cp => cp.name)
-        .join('-')
-        .indexOf(l.name) !== -1 ? 1 : 0))
+      .map((srp) => {
+        const path = srp.checkpoints
+          .map(cp => cp.name)
+          .join('-');
+
+        return (path.indexOf(`${l.from}-${l.to}`) !== -1 || path.indexOf(`${l.to}-${l.from}`) !== -1) ?
+          1 :
+          0;
+      })
       .reduce((a, b) => a + b, 0);
   });
 
-  scales.linkWidth.domain([
-    Math.min(...links.map(l => l.popularity).filter(p => p)),
-    Math.max(...links.map(l => l.popularity).filter(p => p)),
-  ]);
+  scales.linkWidth.domain([0, Math.max(...links.map(l => l.popularity))]);
 
-  d3links.attr('stroke-width', d => (d.popularity ? scales.linkWidth(d.popularity) : 0));
+  d3links.attr('stroke-width', d => scales.linkWidth(d.popularity));
 };
 
 // Init participant groups
