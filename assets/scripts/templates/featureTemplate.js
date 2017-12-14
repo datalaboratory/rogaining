@@ -18,6 +18,7 @@ const featureTemplate = (races, selectedRace) => {
       <div class="dl-feature__map-container">
         ${mapTemplate()}
       </div>
+      <div class="dl-feature__table-container"></div>
     </div>
   `;
 };

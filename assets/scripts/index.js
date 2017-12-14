@@ -12,11 +12,12 @@ import uniq from 'lodash.uniq';
 import nouislider from 'nouislider';
 
 import featureTemplate from './templates/featureTemplate';
+import getPossibleLinks from './services/getPossibleLinks';
 import getSequentialColors from './services/getSequentialColors';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
-import getPossibleLinks from './services/getPossibleLinks';
+import tableTemplate from './templates/tableTemplate';
 
 // Globals
 const races = [
@@ -66,8 +67,9 @@ let currentTime = 0;
 let ratio;
 
 let $timeSlider;
-let $featureMapContainer;
+let $mapContainer;
 let $map;
+let $tableContainer;
 
 let d3checkpointMarks;
 let d3checkpointCaptions;
@@ -171,7 +173,7 @@ const placeParticipantsOnMap = () => {
 
 // Window resize — set calculated size
 const resize = () => {
-  const { width, height } = $featureMapContainer.getBoundingClientRect();
+  const { width, height } = $mapContainer.getBoundingClientRect();
 
   let mapWidth = width;
   let mapHeight = height;
@@ -229,11 +231,13 @@ const DOMContentLoaded = () => {
     initParicipantGroups();
     setParticipantsCoordinates();
     placeParticipantsOnMap();
+
+    $tableContainer.innerHTML = tableTemplate(selectedRaceParticipants);
   });
 
   $timeSlider = document.querySelector('.dl-feature__time-slider');
 
-  $featureMapContainer = document.querySelector('.dl-feature__map-container');
+  $mapContainer = document.querySelector('.dl-feature__map-container');
   $map = document.querySelector('.dl-map');
   const $mapBackgroundImage = document.querySelector('.dl-map__background-image');
 
@@ -241,6 +245,8 @@ const DOMContentLoaded = () => {
   $mapBackgroundImage.style.left = `${margin.left}px`;
   $mapBackgroundImage.style.width = `calc(100% - ${margin.left + margin.right}px`;
   $mapBackgroundImage.style.height = `calc(100% - ${margin.top + margin.bottom}px`;
+
+  $tableContainer = document.querySelector('.dl-feature__table-container');
 
   // Get raw data
   const q = d3queue();
@@ -379,6 +385,8 @@ const DOMContentLoaded = () => {
     initParicipantGroups();
     setParticipantsCoordinates();
     placeParticipantsOnMap();
+
+    $tableContainer.innerHTML = tableTemplate(selectedRaceParticipants);
 
     // First resize
     resize();

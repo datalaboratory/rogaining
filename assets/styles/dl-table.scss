@@ -1,0 +1,85 @@
+@import 'variables';
+
+.dl-table {
+  font-family: $sans-serif;
+  font-size: 16px;
+
+  &__header {
+    display: flex;
+
+    width: 830px;
+
+    border-bottom: 1px rgba(0, 0, 0, 0.167) solid;
+
+    font-weight: bold;
+    line-height: 2em;
+  }
+
+  &__row {
+    display: flex;
+
+    width: 830px;
+
+    cursor: pointer;
+    transition: background-color 0.1s ease-out;
+
+    line-height: 2em;
+  }
+
+  &__row:hover {
+    background-color: #fff7e0;
+  }
+
+  &__table-number {
+    width: 40px;
+
+    text-align: right;
+  }
+
+  &__race-number {
+    width: 50px;
+    margin-left: 20px;
+  }
+
+  &__name {
+    overflow: hidden;
+
+    width: 200px;
+    margin-left: 20px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__points {
+    width: 50px;
+    margin-left: 20px;
+
+    text-align: right;
+  }
+
+  &__time {
+    width: 70px;
+    margin-left: 20px;
+  }
+
+  &__team-name {
+    overflow: hidden;
+
+    width: 200px;
+    margin-left: 20px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__year-of-birth {
+    width: 100px;
+    margin-left: 20px;
+  }
+
+  &__tabular {
+    font-feature-settings: 'tnum';
+    font-variant-numeric: tabular-nums;
+  }
+}
