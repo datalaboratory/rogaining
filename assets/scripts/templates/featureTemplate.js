@@ -11,7 +11,9 @@ const featureTemplate = (races, selectedRace) => {
         <select class="dl-feature__race-select">
           ${raceSelectOptions}
         </select>
-        <div class="dl-feature__time-slider"></div>
+        <div class="dl-feature__time-slider">
+          <div class="dl-feature__time-slider-legend">часы:</div>
+        </div>
       </div>
       <div class="dl-feature__map-container">
         ${mapTemplate()}

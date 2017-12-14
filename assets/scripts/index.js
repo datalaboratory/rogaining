@@ -272,6 +272,13 @@ const DOMContentLoaded = () => {
           max: Math.max(...selectedRaceParticipants.map(p => p.time)),
         },
         step: 60,
+        pips: {
+          mode: 'steps',
+          filter: value => (!(value % 3600) && value ? 1 : 0),
+          format: {
+            to: value => value / 3600,
+          },
+        },
       })
       .on('slide', (values, handle) => {
         currentTime = +values[handle];
