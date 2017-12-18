@@ -2,8 +2,8 @@ const parseCoordinatesData = rawData =>
   rawData
     .map(rd => ({
       name: rd['КП'],
-      x: parseInt(rd.x, 10),
-      y: parseInt(rd.y, 10),
+      x: +rd.x,
+      y: +rd.y,
     }))
     .sort((a, b) => b.x - a.x);
 

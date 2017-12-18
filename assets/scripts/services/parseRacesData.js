@@ -5,7 +5,7 @@ import lastOf from '../tools/lastOf';
 // Apply protocol adjustment
 const applyProtocolAdjustment = (participant, protocol) => {
   const participantData = {
-    points: parseInt(participant['***'], 10) || 0,
+    points: 0,
     time: hhmmssToSeconds(participant['Результат']),
     checkpoints: Object.keys(participant)
       .filter(key =>
@@ -17,6 +17,7 @@ const applyProtocolAdjustment = (participant, protocol) => {
         name: participant[key].match(/\[(.*?)\]/)[1],
         fromStart: hhmmssToSeconds(participant[key].split('[')[0]),
       })),
+    adjustmentErrors: [],
   };
 
   participantData.checkpoints.unshift({
@@ -54,10 +55,24 @@ const applyProtocolAdjustment = (participant, protocol) => {
           name: parsedAdjustment[1],
           fromStart: participantData.checkpoints[aFirstIndex].fromStart + Math.ceil(fromFirstToSecond / 2),
         });
-
-        participantData.points += +parsedAdjustment[1][0];
+      } else {
+        participantData.adjustmentErrors.push(pa['Корректировка']);
       }
     });
+  }
+
+  if (participantData.time) {
+    participantData.points = participantData.checkpoints
+      .map(cp => +(cp.name.indexOf('-') === -1 ? cp.name[0] : cp.name.split('-')[1]) || 0)
+      .reduce((a, b) => a + b, 0);
+
+    const penalty = Math.ceil((participantData.time - (4 * 60 * 60)) / 60);
+
+    if (penalty > 30 || participantData.points - penalty < 0) {
+      participantData.points = 0;
+    } else if (penalty > 0) {
+      participantData.points -= penalty;
+    }
   }
 
   return participantData;
