@@ -8,6 +8,7 @@ import {
   schemeCategory20 as d3schemeCategory20,
 } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
+import flatten from 'lodash.flatten';
 import uniq from 'lodash.uniq';
 import nouislider from 'nouislider';
 
@@ -61,6 +62,7 @@ let coordinates;
 let links;
 let racesData;
 let selectedRace = 'Мужчины, 4 часа бегом';
+let selectedRaceTeams;
 let selectedRaceParticipants;
 let currentTime = 0;
 
@@ -214,13 +216,14 @@ const DOMContentLoaded = () => {
 
   $featureRaceSelect.addEventListener('change', () => {
     selectedRace = $featureRaceSelect.value;
-    selectedRaceParticipants = racesData.find(rd => rd.title === selectedRace).participants;
+    selectedRaceTeams = racesData.find(rd => rd.title === selectedRace).teams;
+    selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
     currentTime = 0;
 
     $timeSlider.noUiSlider.updateOptions({
       range: {
         min: 0,
-        max: Math.max(...selectedRaceParticipants.map(p => p.time)),
+        max: Math.max(...selectedRaceTeams.map(p => p.time)),
       },
     });
 
@@ -232,7 +235,7 @@ const DOMContentLoaded = () => {
     setParticipantsCoordinates();
     placeParticipantsOnMap();
 
-    $tableContainer.innerHTML = tableTemplate(selectedRaceParticipants);
+    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
   });
 
   $timeSlider = document.querySelector('.dl-feature__time-slider');
@@ -263,7 +266,8 @@ const DOMContentLoaded = () => {
 
     // Parse races data
     racesData = parseRacesData(rawData.slice(0, -1), races);
-    selectedRaceParticipants = racesData.find(rd => rd.title === selectedRace).participants;
+    selectedRaceTeams = racesData.find(rd => rd.title === selectedRace).teams;
+    selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
 
     // Create time slider
     nouislider
@@ -275,7 +279,7 @@ const DOMContentLoaded = () => {
         ],
         range: {
           min: 0,
-          max: Math.max(...selectedRaceParticipants.map(p => p.time)),
+          max: Math.max(...selectedRaceTeams.map(p => p.time)),
         },
         step: 60,
         pips: {
@@ -386,7 +390,7 @@ const DOMContentLoaded = () => {
     setParticipantsCoordinates();
     placeParticipantsOnMap();
 
-    $tableContainer.innerHTML = tableTemplate(selectedRaceParticipants);
+    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
 
     // First resize
     resize();

@@ -1,3 +1,5 @@
+import groupby from 'lodash.groupby';
+
 import capitalizeFirstLetter from '../tools/capitalizeFirstLetter';
 import hhmmssToSeconds from '../tools/hhmmssToSeconds';
 import lastOf from '../tools/lastOf';
@@ -79,26 +81,50 @@ const applyProtocolAdjustment = (participant, protocol) => {
 };
 
 const parseRacesData = (rawData, races) =>
-  races.map((r, i) => ({
-    title: r.title,
-    participants: rawData[i].map(rd => Object.assign(
-      // Participant data contains of two objects — static data and checkpoints data
-      {
-        number: rd['Номер'],
-        teamName: rd['Команда'],
-        name: capitalizeFirstLetter(rd['Имя'].toLowerCase()),
-        surname: capitalizeFirstLetter(rd['Фамилия'].toLowerCase()),
-        yearOfBirth: rd['Г.р.'],
-      },
-      applyProtocolAdjustment(rd, lastOf(rawData)),
-    )).sort((a, b) => {
-      if (a.points > b.points) return -1;
-      if (a.points < b.points) return 1;
-      if (a.time < b.time) return -1;
-      if (a.time > b.time) return 1;
+  races.map((r, i) => {
+    const participants = rawData[i]
+      .map(rd => Object.assign(
+        // Participant data contains of two objects — static data and checkpoints data
+        {
+          number: rd['Номер'],
+          teamName: rd['Команда'],
+          name: capitalizeFirstLetter(rd['Имя'].toLowerCase()),
+          surname: capitalizeFirstLetter(rd['Фамилия'].toLowerCase()),
+          yearOfBirth: rd['Г.р.'],
+        },
+        applyProtocolAdjustment(rd, lastOf(rawData)),
+      ))
+      .sort((a, b) => {
+        if (a.surname < b.surname) return -1;
+        if (a.surname > b.surname) return 1;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
 
-      return 0;
-    }),
-  }));
+        return 0;
+      });
+
+    const participantsGroupedByTeamName = groupby(participants, 'teamName');
+
+    const teams = Object.keys(participantsGroupedByTeamName)
+      .map(key => ({
+        name: key,
+        points: Math.min(...participantsGroupedByTeamName[key].map(p => p.points)),
+        time: Math.max(...participantsGroupedByTeamName[key].map(p => p.time)),
+        participants: participantsGroupedByTeamName[key],
+      }))
+      .sort((a, b) => {
+        if (a.points > b.points) return -1;
+        if (a.points < b.points) return 1;
+        if (a.time < b.time) return -1;
+        if (a.time > b.time) return 1;
+
+        return 0;
+      });
+
+    return {
+      title: r.title,
+      teams,
+    };
+  });
 
 export default parseRacesData;

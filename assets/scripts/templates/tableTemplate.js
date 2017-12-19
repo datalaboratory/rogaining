@@ -1,8 +1,9 @@
 import secondsToHhmmss from '../tools/secondsToHhmmss';
 
-const tableTemplate = (selectedRaceParticipants) => {
-  const tableRows = selectedRaceParticipants
-    .map((srp, i) => {
+const tableTemplate = (selectedRaceTeams) => {
+  const tableRows = selectedRaceTeams
+    .map((srt, i) => {
+      /*
       const checkpoints = srp.checkpoints
         .slice(1, -1)
         .map(cp => `
@@ -12,19 +13,17 @@ const tableTemplate = (selectedRaceParticipants) => {
           </div>
         `)
         .join('');
+      */
 
       return `
         <div
           id="${i}"
           class="dl-table__row"
         >
-          <div class="dl-table__table-number dl-table__tabular">${i + 1}</div>
-          <div class="dl-table__race-number dl-table__tabular">${srp.number}</div>
-          <div class="dl-table__name">${srp.name} ${srp.surname}</div>
-          <div class="dl-table__points dl-table__tabular">${srp.points}</div>
-          <div class="dl-table__time dl-table__tabular">${secondsToHhmmss(srp.time)}</div>
-          <div class="dl-table__team-name">${srp.teamName}</div>
-          <div class="dl-table__year-of-birth dl-table__tabular">${srp.yearOfBirth}</div>
+          <div class="dl-table__number dl-table__tabular">${i + 1}</div>
+          <div class="dl-table__name">${srt.name}</div>
+          <div class="dl-table__points dl-table__tabular">${srt.points}</div>
+          <div class="dl-table__time dl-table__tabular">${secondsToHhmmss(srt.time)}</div>
         </div>
       `;
     })
@@ -33,13 +32,10 @@ const tableTemplate = (selectedRaceParticipants) => {
   return `
     <div class="dl-table">
       <div class="dl-table__header">
-        <div class="dl-table__table-number"></div>
-        <div class="dl-table__race-number">№</div>
-        <div class="dl-table__name">Участник</div>
+        <div class="dl-table__number"></div>
+        <div class="dl-table__name">Команда</div>
         <div class="dl-table__points">Очки</div>
         <div class="dl-table__time">Время</div>
-        <div class="dl-table__team-name">Команда</div>
-        <div class="dl-table__year-of-birth">Г.р.</div>
       </div>
       ${tableRows}
     </div>
