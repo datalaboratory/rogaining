@@ -13,6 +13,18 @@
 
     font-weight: bold;
     line-height: 2em;
+
+    &-stuck {
+      position: fixed;
+      z-index: 1;
+      top: 0;
+
+      background-color: #fff;
+    }
+  }
+
+  &__rows-with-offset {
+    padding-top: 33px;
   }
 
   &__row {

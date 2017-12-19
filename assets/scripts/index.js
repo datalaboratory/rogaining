@@ -72,6 +72,9 @@ let $timeSlider;
 let $mapContainer;
 let $map;
 let $tableContainer;
+let $tableHeader;
+let $tableRows;
+let tableHeaderOffsetTop;
 
 let d3checkpointMarks;
 let d3checkpointCaptions;
@@ -204,8 +207,19 @@ const resize = () => {
   placeParticipantsOnMap();
 };
 
-// Add resize event listener
+// Window scroll — fix table header if needed
+const scroll = () => {
+  if (document.documentElement.scrollTop > tableHeaderOffsetTop) {
+    $tableHeader.classList.add('dl-table__header-stuck');
+    $tableRows.classList.add('dl-table__rows-with-offset');
+  } else {
+    $tableHeader.classList.remove('dl-table__header-stuck');
+    $tableRows.classList.remove('dl-table__rows-with-offset');
+  }
+};
+
 window.addEventListener('resize', resize);
+window.addEventListener('scroll', scroll);
 
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
@@ -391,6 +405,10 @@ const DOMContentLoaded = () => {
     placeParticipantsOnMap();
 
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
+
+    $tableHeader = document.querySelector('.dl-table__header');
+    $tableRows = document.querySelector('.dl-table__rows');
+    tableHeaderOffsetTop = $tableHeader.offsetTop;
 
     // First resize
     resize();

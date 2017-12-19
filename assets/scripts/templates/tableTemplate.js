@@ -37,7 +37,9 @@ const tableTemplate = (selectedRaceTeams) => {
         <div class="dl-table__points">Очки</div>
         <div class="dl-table__time">Время</div>
       </div>
-      ${tableRows}
+      <div class="dl-table__rows">
+        ${tableRows}
+      </div>
     </div>
   `;
 };
