@@ -31,6 +31,10 @@
   }
 
   &__participant {
+    &-path {
+      fill: none;
+    }
+
     &-mark {
       stroke: #fff;
       fill: #999;

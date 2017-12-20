@@ -5,9 +5,10 @@ import {
   scaleLinear as d3scaleLinear,
   scaleOrdinal as d3scaleOrdinal,
   scaleSqrt as d3scaleSqrt,
-  schemeCategory20 as d3schemeCategory20,
+  schemeCategory10 as d3schemeCategory10,
 } from 'd3-scale';
 import { select as d3select } from 'd3-selection';
+import { line as d3line } from 'd3-shape';
 import flatten from 'lodash.flatten';
 import uniq from 'lodash.uniq';
 import nouislider from 'nouislider';
@@ -51,13 +52,15 @@ const margin = {
 const scales = {
   x: d3scaleLinear(),
   y: d3scaleLinear(),
-  teamColor: d3scaleOrdinal(d3schemeCategory20),
+  teamColor: d3scaleOrdinal(d3schemeCategory10),
   cpColor: d3scaleOrdinal(),
   cpRadius: d3scaleSqrt()
     .range([5, 20]),
   linkWidth: d3scaleLinear()
     .range([0, 20]),
 };
+
+const participantPathGenerator = d3line();
 
 let coordinates;
 let links;
@@ -142,6 +145,10 @@ const initParicipantGroups = () => {
     .attr('class', 'dl-map__participant');
 
   d3participantGroups
+    .append('path')
+    .attr('class', 'dl-map__participant-path');
+
+  d3participantGroups
     .append('circle')
     .attr('class', 'dl-map__participant-mark')
     .attr('r', 3);
@@ -173,9 +180,19 @@ const setParticipantsCoordinates = () => {
   });
 };
 
+// Draw participant paths
+const drawParticipantPaths = () => {
+  d3participantGroups
+    .select('.dl-map__participant-path')
+    .attr('d', d => participantPathGenerator(d.checkpoints.map(cp => coordinates.find(c => c.name === cp.name))));
+};
+
 // Place participants on map
 const placeParticipantsOnMap = () => {
-  d3participantGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+  d3participantGroups
+    .select('.dl-map__participant-mark')
+    .attr('cx', d => scales.x(d.x))
+    .attr('cy', d => scales.y(d.y));
 };
 
 // Add event listeners to table rows
@@ -199,6 +216,11 @@ const addTableRowsEventListeners = () => {
       $tr.classList.toggle('dl-table__row-opened');
 
       const teamParticipants = d3participantGroups.filter(d => d.teamName === teamName);
+
+
+      teamParticipants
+        .selectAll('.dl-map__participant-path')
+        .style('stroke', $tr.classList.contains('dl-table__row-opened') ? scales.teamColor(teamName) : '');
 
       teamParticipants
         .selectAll('.dl-map__participant-mark')
@@ -234,6 +256,10 @@ const resize = () => {
   scales.x.range([0, mapWidth - margin.left - margin.right]);
   scales.y.range([mapHeight - margin.top - margin.bottom, 0]);
 
+  participantPathGenerator
+    .x(d => scales.x(d.x))
+    .y(d => scales.y(d.y));
+
   d3checkpointMarks.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
   d3checkpointCaptions.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
 
@@ -243,6 +269,7 @@ const resize = () => {
     .attr('x2', d => scales.x(d.x2))
     .attr('y2', d => scales.y(d.y2));
 
+  drawParticipantPaths();
   placeParticipantsOnMap();
 };
 
@@ -282,6 +309,7 @@ const DOMContentLoaded = () => {
     updateCheckpoints();
     updateLinks();
     initParicipantGroups();
+    drawParticipantPaths();
     setParticipantsCoordinates();
     placeParticipantsOnMap();
 
@@ -439,7 +467,6 @@ const DOMContentLoaded = () => {
     updateLinks();
     initParicipantGroups();
     setParticipantsCoordinates();
-    placeParticipantsOnMap();
 
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
 
