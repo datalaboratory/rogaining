@@ -15,6 +15,7 @@ import nouislider from 'nouislider';
 import featureTemplate from './templates/featureTemplate';
 import getPossibleLinks from './services/getPossibleLinks';
 import getSequentialColors from './services/getSequentialColors';
+import hexWithAlphaToRGBA from './tools/hexWithAlphaToRGBA';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
@@ -50,7 +51,7 @@ const margin = {
 const scales = {
   x: d3scaleLinear(),
   y: d3scaleLinear(),
-  participantColor: d3scaleOrdinal(d3schemeCategory20),
+  teamColor: d3scaleOrdinal(d3schemeCategory20),
   cpColor: d3scaleOrdinal(),
   cpRadius: d3scaleSqrt()
     .range([5, 20]),
@@ -73,7 +74,8 @@ let $mapContainer;
 let $map;
 let $tableContainer;
 let $tableHeader;
-let $tableRows;
+let $tableBody;
+
 let tableHeaderOffsetTop;
 
 let d3checkpointMarks;
@@ -98,13 +100,14 @@ const updateCheckpoints = () => {
 
   d3checkpointMarks
     .attr('r', d => scales.cpRadius(d.popularity))
-    .attr('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
+    .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
 
   d3checkpointCaptions
     .attr('dx', d => scales.cpRadius(d.popularity) + 3)
-    .attr('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
+    .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
 };
 
+// Update links
 const updateLinks = () => {
   links.forEach((l) => {
     l.popularity = selectedRaceParticipants
@@ -122,7 +125,7 @@ const updateLinks = () => {
 
   scales.linkWidth.domain([0, Math.max(...links.map(l => l.popularity))]);
 
-  d3links.attr('stroke-width', d => scales.linkWidth(d.popularity));
+  d3links.style('stroke-width', d => scales.linkWidth(d.popularity));
 };
 
 // Init participant groups
@@ -141,8 +144,7 @@ const initParicipantGroups = () => {
   d3participantGroups
     .append('circle')
     .attr('class', 'dl-map__participant-mark')
-    .attr('r', 3)
-    .attr('fill', '#999');
+    .attr('r', 3);
 };
 
 // Set participants coordinates
@@ -174,6 +176,43 @@ const setParticipantsCoordinates = () => {
 // Place participants on map
 const placeParticipantsOnMap = () => {
   d3participantGroups.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+};
+
+// Add event listeners to table rows
+const addTableRowsEventListeners = () => {
+  document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+    const teamName = selectedRaceTeams[i].name;
+
+    $tr.addEventListener('mouseover', () => {
+      if (!$tr.classList.contains('dl-table__row-opened')) {
+        $tr.style.backgroundColor = hexWithAlphaToRGBA(scales.teamColor(teamName), 0.5);
+      }
+    });
+
+    $tr.addEventListener('mouseout', () => {
+      if (!$tr.classList.contains('dl-table__row-opened')) {
+        $tr.style.backgroundColor = '';
+      }
+    });
+
+    $tr.addEventListener('click', () => {
+      $tr.classList.toggle('dl-table__row-opened');
+
+      const teamParticipants = d3participantGroups.filter(d => d.teamName === teamName);
+
+      teamParticipants
+        .selectAll('.dl-map__participant-mark')
+        .attr('r', $tr.classList.contains('dl-table__row-opened') ? 5 : 3)
+        .style('fill', $tr.classList.contains('dl-table__row-opened') ? scales.teamColor(teamName) : '');
+
+      teamParticipants.each((d, j, selection) => {
+        const parent = selection[j].parentNode;
+
+        parent.removeChild(selection[j]);
+        parent.appendChild(selection[j]);
+      });
+    });
+  });
 };
 
 // Window resize — set calculated size
@@ -211,15 +250,12 @@ const resize = () => {
 const scroll = () => {
   if (document.documentElement.scrollTop > tableHeaderOffsetTop) {
     $tableHeader.classList.add('dl-table__header-stuck');
-    $tableRows.classList.add('dl-table__rows-with-offset');
+    $tableBody.classList.add('dl-table__body-with-offset');
   } else {
     $tableHeader.classList.remove('dl-table__header-stuck');
-    $tableRows.classList.remove('dl-table__rows-with-offset');
+    $tableBody.classList.remove('dl-table__body-with-offset');
   }
 };
-
-window.addEventListener('resize', resize);
-window.addEventListener('scroll', scroll);
 
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
@@ -250,6 +286,8 @@ const DOMContentLoaded = () => {
     placeParticipantsOnMap();
 
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
+
+    addTableRowsEventListeners();
   });
 
   $timeSlider = document.querySelector('.dl-feature__time-slider');
@@ -368,8 +406,7 @@ const DOMContentLoaded = () => {
       .data(links)
       .enter()
       .append('line')
-      .attr('class', 'dl-map__link')
-      .attr('stroke', '#eee');
+      .attr('class', 'dl-map__link');
 
     // Add checkpoints
     const d3checkpointsGroup = d3rootGroup
@@ -382,8 +419,8 @@ const DOMContentLoaded = () => {
       .enter()
       .append('circle')
       .attr('class', 'dl-map__checkpoint-mark')
-      .attr('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
-      .attr('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
+      .style('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
+      .style('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
 
     d3checkpointCaptions = d3checkpointsGroup
       .selectAll('text')
@@ -407,13 +444,16 @@ const DOMContentLoaded = () => {
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
 
     $tableHeader = document.querySelector('.dl-table__header');
-    $tableRows = document.querySelector('.dl-table__rows');
+    $tableBody = document.querySelector('.dl-table__body');
     tableHeaderOffsetTop = $tableHeader.offsetTop;
+
+    addTableRowsEventListeners();
 
     // First resize
     resize();
   });
 };
 
-// Add DOMContentLoaded listener (entry point)
+window.addEventListener('resize', resize);
+window.addEventListener('scroll', scroll);
 document.addEventListener('DOMContentLoaded', DOMContentLoaded);

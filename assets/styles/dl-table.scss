@@ -23,7 +23,7 @@
     }
   }
 
-  &__rows-with-offset {
+  &__body-with-offset {
     padding-top: 33px;
   }
 
@@ -36,10 +36,6 @@
     transition: background-color 0.1s ease-out;
 
     line-height: 2em;
-  }
-
-  &__row:hover {
-    background-color: #fff7e0;
   }
 
   &__number {

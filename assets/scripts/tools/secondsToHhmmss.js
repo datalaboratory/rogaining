@@ -1,4 +1,4 @@
-const secondsToHhmmss = (seconds) => {
+const secondsToHHMMSS = (seconds) => {
   const result = [];
 
   const hhmmss = new Date(seconds * 1000)
@@ -15,4 +15,4 @@ const secondsToHhmmss = (seconds) => {
   return result.join(':');
 };
 
-export default secondsToHhmmss;
+export default secondsToHHMMSS;

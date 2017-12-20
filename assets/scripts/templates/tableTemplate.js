@@ -1,4 +1,4 @@
-import secondsToHhmmss from '../tools/secondsToHhmmss';
+import secondsToHHMMSS from '../tools/secondsToHHMMSS';
 
 const tableTemplate = (selectedRaceTeams) => {
   const tableRows = selectedRaceTeams
@@ -23,7 +23,7 @@ const tableTemplate = (selectedRaceTeams) => {
           <div class="dl-table__number dl-table__tabular">${i + 1}</div>
           <div class="dl-table__name">${srt.name}</div>
           <div class="dl-table__points dl-table__tabular">${srt.points}</div>
-          <div class="dl-table__time dl-table__tabular">${secondsToHhmmss(srt.time)}</div>
+          <div class="dl-table__time dl-table__tabular">${secondsToHHMMSS(srt.time)}</div>
         </div>
       `;
     })
@@ -37,7 +37,7 @@ const tableTemplate = (selectedRaceTeams) => {
         <div class="dl-table__points">Очки</div>
         <div class="dl-table__time">Время</div>
       </div>
-      <div class="dl-table__rows">
+      <div class="dl-table__body">
         ${tableRows}
       </div>
     </div>

@@ -1,14 +1,14 @@
 import groupby from 'lodash.groupby';
 
 import capitalizeFirstLetter from '../tools/capitalizeFirstLetter';
-import hhmmssToSeconds from '../tools/hhmmssToSeconds';
+import HHMMSSToSeconds from '../tools/HHMMSSToSeconds';
 import lastOf from '../tools/lastOf';
 
 // Apply protocol adjustment
 const applyProtocolAdjustment = (participant, protocol) => {
   const participantData = {
     points: 0,
-    time: hhmmssToSeconds(participant['Результат']),
+    time: HHMMSSToSeconds(participant['Результат']),
     checkpoints: Object.keys(participant)
       .filter(key =>
         key.indexOf('#') !== -1 &&
@@ -17,7 +17,7 @@ const applyProtocolAdjustment = (participant, protocol) => {
       .sort((a, b) => +a.split('#')[1] - +b.split('#')[1])
       .map(key => ({
         name: participant[key].match(/\[(.*?)\]/)[1],
-        fromStart: hhmmssToSeconds(participant[key].split('[')[0]),
+        fromStart: HHMMSSToSeconds(participant[key].split('[')[0]),
       })),
     adjustmentErrors: [],
   };

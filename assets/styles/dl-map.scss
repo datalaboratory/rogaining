@@ -16,6 +16,10 @@
     height: 100%;
   }
 
+  &__link {
+    stroke: #eee;
+  }
+
   &__checkpoint-caption {
     text-shadow: 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 1px #fff, 0 0 1px #fff, 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 4px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff, 0 0 4px #fff;
 
@@ -29,6 +33,7 @@
   &__participant {
     &-mark {
       stroke: #fff;
+      fill: #999;
     }
   }
 }
