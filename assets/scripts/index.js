@@ -24,22 +24,102 @@ import tableTemplate from './templates/tableTemplate';
 
 // Globals
 const races = [
-  { fileName: 'Split_rogaining_Final_Kubka - М4Б.csv', title: 'Мужчины, 4 часа бегом' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4Б_Ю.csv', title: 'Мужчины, 4 часа бегом (юниоры)' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4Б_В.csv', title: 'Мужчины, 4 часа бегом (ветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4Б_СВ.csv', title: 'Мужчины, 4 часа бегом (суперветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4В.csv', title: 'Мужчины, 4 часа на велосипеде' },
-  { fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv', title: 'Мужчины, 4 часа на велосипеде (ветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv', title: 'Женщины, 4 часа бегом' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv', title: 'Женщины, 4 часа бегом (юниоры)' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv', title: 'Женщины, 4 часа бегом (ветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv', title: 'Женщины, 4 часа бегом (суперветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv', title: 'Женщины, 4 часа на велосипеде' },
-  { fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv', title: 'Женщины, 4 часа на велосипеде (ветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv', title: 'Мужчины и женщины, 4 часа бегом' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv', title: 'Мужчины и женщины, 4 часа бегом (юниоры)' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv', title: 'Мужчины и женщины, 4 часа бегом (ветераны)' },
-  { fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv', title: 'Мужчины и женщины, 4 часа на велосипеде' },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4Б.csv',
+    group: 'Мужчины',
+    title: '4 часа бегом',
+    id: 'М 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4Б_Ю.csv',
+    group: 'Мужчины',
+    title: '4 часа бегом (юниоры)',
+    id: 'М (ю) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4Б_В.csv',
+    group: 'Мужчины',
+    title: '4 часа бегом (ветераны)',
+    id: 'М (в) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4Б_СВ.csv',
+    group: 'Мужчины',
+    title: '4 часа бегом (суперветераны)',
+    id: 'М (св) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4В.csv',
+    group: 'Мужчины',
+    title: '4 часа на велосипеде',
+    id: 'М 4 (вело)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv',
+    group: 'Мужчины',
+    title: '4 часа на велосипеде (ветераны)',
+    id: 'М (в) 4 (вело)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv',
+    group: 'Женщины',
+    title: '4 часа бегом',
+    id: 'Ж 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv',
+    group: 'Женщины',
+    title: '4 часа бегом (юниоры)',
+    id: 'Ж (ю) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv',
+    group: 'Женщины',
+    title: '4 часа бегом (ветераны)',
+    id: 'Ж (в) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv',
+    group: 'Женщины',
+    title: '4 часа бегом (суперветераны)',
+    id: 'Ж (св) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv',
+    group: 'Женщины',
+    title: '4 часа на велосипеде',
+    id: 'Ж 4 (вело)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv',
+    group: 'Женщины',
+    title: '4 часа на велосипеде (ветераны)',
+    id: 'Ж (в) 4 (вело)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv',
+    group: 'Мужчины и женщины',
+    title: '4 часа бегом',
+    id: 'М+Ж 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv',
+    group: 'Мужчины и женщины',
+    title: '4 часа бегом (юниоры)',
+    id: 'М+Ж (ю) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv',
+    group: 'Мужчины и женщины',
+    title: '4 часа бегом (ветераны)',
+    id: 'М+Ж (в) 4 (бег)',
+  },
+  {
+    fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv',
+    group: 'Мужчины и женщины',
+    title: '4 часа на велосипеде',
+    id: 'М+Ж 4 (вело)',
+  },
 ];
 
 const margin = {
@@ -65,12 +145,10 @@ const participantPathGenerator = d3line();
 let coordinates;
 let links;
 let racesData;
-let selectedRace = 'Мужчины, 4 часа бегом';
+let selectedRace = 'М 4 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
 let currentTime = 0;
-
-let ratio;
 
 let $timeSlider;
 let $mapContainer;
@@ -237,42 +315,6 @@ const addTableRowsEventListeners = () => {
   });
 };
 
-// Window resize — set calculated size
-const resize = () => {
-  const { width, height } = $mapContainer.getBoundingClientRect();
-
-  let mapWidth = width;
-  let mapHeight = height;
-
-  if (width > height * ratio) {
-    mapWidth = height * ratio;
-  } else if (height > width / ratio) {
-    mapHeight = width / ratio;
-  }
-
-  $map.style.width = `${mapWidth}px`;
-  $map.style.height = `${mapHeight}px`;
-
-  scales.x.range([0, mapWidth - margin.left - margin.right]);
-  scales.y.range([mapHeight - margin.top - margin.bottom, 0]);
-
-  participantPathGenerator
-    .x(d => scales.x(d.x))
-    .y(d => scales.y(d.y));
-
-  d3checkpointMarks.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
-  d3checkpointCaptions.attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
-
-  d3links
-    .attr('x1', d => scales.x(d.x1))
-    .attr('y1', d => scales.y(d.y1))
-    .attr('x2', d => scales.x(d.x2))
-    .attr('y2', d => scales.y(d.y2));
-
-  drawParticipantPaths();
-  placeParticipantsOnMap();
-};
-
 // Window scroll — fix table header if needed
 const scroll = () => {
   if (document.documentElement.scrollTop > tableHeaderOffsetTop) {
@@ -289,37 +331,64 @@ const DOMContentLoaded = () => {
   // Create layout
   document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races, selectedRace);
 
-  const $featureRaceSelect = document.querySelector('.dl-feature__race-select');
+  // Race select
+  const $raceSelect = document.querySelector('.dl-race-select');
+  const $raceSelectToggle = document.querySelector('.dl-race-select__toggle');
+  const $raceSelectDropdown = document.querySelector('.dl-race-select__dropdown');
+  const $raceSelectOptions = document.querySelectorAll('.dl-race-select__option');
 
-  $featureRaceSelect.addEventListener('change', () => {
-    selectedRace = $featureRaceSelect.value;
-    selectedRaceTeams = racesData.find(rd => rd.title === selectedRace).teams;
-    selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
-    currentTime = 0;
-
-    $timeSlider.noUiSlider.updateOptions({
-      range: {
-        min: 0,
-        max: Math.max(...selectedRaceTeams.map(p => p.time)),
-      },
-    });
-
-    $timeSlider.noUiSlider.set(currentTime);
-
-    updateCheckpoints();
-    updateLinks();
-    initParicipantGroups();
-    drawParticipantPaths();
-    setParticipantsCoordinates();
-    placeParticipantsOnMap();
-
-    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
-
-    addTableRowsEventListeners();
+  $raceSelect.addEventListener('blur', () => {
+    $raceSelectToggle.classList.remove('dl-race-select__toggle-activated');
+    $raceSelectDropdown.classList.remove('dl-race-select__dropdown-shown');
   });
 
-  $timeSlider = document.querySelector('.dl-feature__time-slider');
+  $raceSelectToggle.addEventListener('click', () => {
+    $raceSelectToggle.classList.toggle('dl-race-select__toggle-activated');
+    $raceSelectDropdown.classList.toggle('dl-race-select__dropdown-shown');
+  });
 
+  $raceSelectOptions.forEach(($o1, i) => {
+    $o1.addEventListener('click', () => {
+      selectedRace = races[i].id;
+
+      $raceSelectOptions.forEach(($o2) => {
+        if ($o2.classList.contains('dl-race-select__option-selected')) {
+          $o2.classList.remove('dl-race-select__option-selected');
+        }
+      });
+
+      $o1.classList.add('dl-race-select__option-selected');
+      $raceSelectToggle.innerHTML = selectedRace;
+      $raceSelectToggle.classList.remove('dl-race-select__toggle-activated');
+      $raceSelectDropdown.classList.remove('dl-race-select__dropdown-shown');
+
+      selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
+      selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
+      currentTime = 0;
+
+      $timeSlider.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: Math.max(...selectedRaceTeams.map(p => p.time)),
+        },
+      });
+
+      $timeSlider.noUiSlider.set(currentTime);
+
+      updateCheckpoints();
+      updateLinks();
+      initParicipantGroups();
+      drawParticipantPaths();
+      setParticipantsCoordinates();
+      placeParticipantsOnMap();
+
+      $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
+
+      addTableRowsEventListeners();
+    });
+  });
+
+  // Set background image size
   $mapContainer = document.querySelector('.dl-feature__map-container');
   $map = document.querySelector('.dl-map');
   const $mapBackgroundImage = document.querySelector('.dl-map__background-image');
@@ -328,8 +397,6 @@ const DOMContentLoaded = () => {
   $mapBackgroundImage.style.left = `${margin.left}px`;
   $mapBackgroundImage.style.width = `calc(100% - ${margin.left + margin.right}px`;
   $mapBackgroundImage.style.height = `calc(100% - ${margin.top + margin.bottom}px`;
-
-  $tableContainer = document.querySelector('.dl-feature__table-container');
 
   // Get raw data
   const q = d3queue();
@@ -346,10 +413,12 @@ const DOMContentLoaded = () => {
 
     // Parse races data
     racesData = parseRacesData(rawData.slice(0, -1), races);
-    selectedRaceTeams = racesData.find(rd => rd.title === selectedRace).teams;
+    selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
     selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
 
     // Create time slider
+    $timeSlider = document.querySelector('.dl-feature__time-slider');
+
     nouislider
       .create($timeSlider, {
         start: 0,
@@ -417,10 +486,24 @@ const DOMContentLoaded = () => {
     const xMax = (pixels.start.right + (startCP.x / mPerPx)) * mPerPx;
     const yMin = -(pixels.start.bottom - (startCP.y / mPerPx)) * mPerPx;
     const yMax = (pixels.start.top + (startCP.y / mPerPx)) * mPerPx;
+    const ratio = (xMax - xMin) / (yMax - yMin);
+    const { height } = $mapContainer.getBoundingClientRect();
+    const width = height * ratio;
 
-    ratio = (xMax - xMin) / (yMax - yMin);
-    scales.x.domain([xMin, xMax]);
-    scales.y.domain([yMin, yMax]);
+    $map.style.width = `${width}px`;
+    $timeSlider.style.width = `${width}px`;
+
+    scales.x
+      .domain([xMin, xMax])
+      .range([0, width - margin.left - margin.right]);
+
+    scales.y
+      .domain([yMin, yMax])
+      .range([height - margin.top - margin.bottom, 0]);
+
+    participantPathGenerator
+      .x(d => scales.x(d.x))
+      .y(d => scales.y(d.y));
 
     const d3rootGroup = d3select('.dl-map svg')
       .append('g')
@@ -434,7 +517,11 @@ const DOMContentLoaded = () => {
       .data(links)
       .enter()
       .append('line')
-      .attr('class', 'dl-map__link');
+      .attr('class', 'dl-map__link')
+      .attr('x1', d => scales.x(d.x1))
+      .attr('y1', d => scales.y(d.y1))
+      .attr('x2', d => scales.x(d.x2))
+      .attr('y2', d => scales.y(d.y2));
 
     // Add checkpoints
     const d3checkpointsGroup = d3rootGroup
@@ -447,6 +534,7 @@ const DOMContentLoaded = () => {
       .enter()
       .append('circle')
       .attr('class', 'dl-map__checkpoint-mark')
+      .attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`)
       .style('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
       .style('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
 
@@ -456,6 +544,7 @@ const DOMContentLoaded = () => {
       .enter()
       .append('text')
       .attr('class', 'dl-map__checkpoint-caption')
+      .attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`)
       .text(d => d.name);
 
     // Add participants
@@ -467,7 +556,10 @@ const DOMContentLoaded = () => {
     updateLinks();
     initParicipantGroups();
     setParticipantsCoordinates();
+    drawParticipantPaths();
+    placeParticipantsOnMap();
 
+    $tableContainer = document.querySelector('.dl-feature__table-container');
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
 
     $tableHeader = document.querySelector('.dl-table__header');
@@ -475,12 +567,8 @@ const DOMContentLoaded = () => {
     tableHeaderOffsetTop = $tableHeader.offsetTop;
 
     addTableRowsEventListeners();
-
-    // First resize
-    resize();
   });
 };
 
-window.addEventListener('resize', resize);
 window.addEventListener('scroll', scroll);
 document.addEventListener('DOMContentLoaded', DOMContentLoaded);

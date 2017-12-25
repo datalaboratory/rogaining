@@ -6,27 +6,24 @@
 
   -webkit-font-smoothing: antialiased;
 
-  &__controls {
+  &__header {
     display: flex;
 
-    height: 80px;
-  }
+    &-caption {
+      margin-right: 20px;
 
-  &__race-select {
-    align-self: flex-start;
-
-    font-family: $sans-serif;
-    font-size: 16px;
-
-    &:focus {
-      outline: none;
+      font-family: $sans-serif;
+      font-size: 28px;
     }
   }
 
+  &__map-container {
+    height: 500px;
+    margin-top: 20px;
+  }
+
   &__time-slider {
-    width: 400px;
-    height: 20px;
-    margin-left: 60px;
+    height: 30px;
 
     border-top: none;
     border-right: none;
@@ -37,17 +34,15 @@
     box-shadow: none;
 
     &-legend {
-      padding-top: 4px;
-
-      color: #333;
+      padding-top: 8px;
 
       font-family: $sans-serif;
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1em;
     }
 
     & .noUi-handle {
-      top: 4px;
+      top: 6px;
 
       width: 17px;
       height: 22px;
@@ -75,7 +70,7 @@
     }
 
     & .noUi-connect {
-      top: 3px;
+      top: 5px;
 
       height: 1px;
 
@@ -85,7 +80,7 @@
     }
 
     & .noUi-pips {
-      top: -2px;
+      top: 0;
 
       height: 0;
       padding: 0;
@@ -96,19 +91,15 @@
     }
 
     & .noUi-value {
-      color: #333;
+      color: #000;
 
       font-family: $sans-serif;
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1em;
     }
   }
 
-  &__map-container {
-    height: 550px;
-  }
-
   &__table-container {
-    margin-bottom: 20px;
+    margin: 40px 0 20px;
   }
 }

@@ -122,7 +122,7 @@ const parseRacesData = (rawData, races) =>
       });
 
     return {
-      title: r.title,
+      id: r.id,
       teams,
     };
   });
