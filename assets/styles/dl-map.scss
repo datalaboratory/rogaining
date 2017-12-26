@@ -7,8 +7,11 @@
 
   &__background-image {
     position: absolute;
+    z-index: -1;
 
-    opacity: 0;
+    visibility: hidden;
+
+    opacity: 0.2;
     background-image: url('../img/Финал2017-75.jpg');
     background-size: 100% 100%;
   }

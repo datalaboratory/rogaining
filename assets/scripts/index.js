@@ -142,6 +142,12 @@ const scales = {
 
 const participantPathGenerator = d3line();
 
+const checkboxes = [
+  { id: 'dl-show-checkpoints', label: 'Чекпоинты', checked: true },
+  { id: 'dl-show-paths-popularity', label: 'Популярность путей', checked: true },
+  { id: 'dl-show-map', label: 'Карта', checked: false },
+];
+
 let coordinates;
 let links;
 let racesData;
@@ -151,14 +157,16 @@ let selectedRaceParticipants;
 let currentTime = 0;
 
 let $timeSlider;
-let $mapContainer;
+let $mapCheckboxesContainer;
 let $map;
+let $mapBackgroundImage;
 let $tableContainer;
 let $tableHeader;
 let $tableBody;
 
 let tableHeaderOffsetTop;
 
+let d3checkpointsGroup;
 let d3checkpointMarks;
 let d3checkpointCaptions;
 let d3links;
@@ -329,7 +337,7 @@ const scroll = () => {
 // Document DOMContentLoaded — create layout
 const DOMContentLoaded = () => {
   // Create layout
-  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races, selectedRace);
+  document.querySelector('.dl-feature-container').innerHTML = featureTemplate(races, selectedRace, checkboxes);
 
   // Race select
   const $raceSelect = document.querySelector('.dl-race-select');
@@ -388,10 +396,27 @@ const DOMContentLoaded = () => {
     });
   });
 
+  // Checkboxes
+  document.querySelector('.dl-checkboxes').style.marginTop = `${margin.top}px`;
+
+  const $checkboxes = document.querySelectorAll('.dl-checkboxes input');
+
+  $checkboxes.forEach(($c, i) => {
+    $c.addEventListener('change', () => {
+      if (checkboxes[i].id === 'dl-show-checkpoints') {
+        d3checkpointsGroup.style('visibility', $c.checked ? 'visible' : 'hidden');
+      } else if (checkboxes[i].id === 'dl-show-paths-popularity') {
+        d3links.style('visibility', $c.checked ? 'visible' : 'hidden');
+      } else {
+        $mapBackgroundImage.style.visibility = $c.checked ? 'visible' : '';
+      }
+    });
+  });
+
   // Set background image size
-  $mapContainer = document.querySelector('.dl-feature__map-container');
+  $mapCheckboxesContainer = document.querySelector('.dl-feature__map-checkboxes-container');
   $map = document.querySelector('.dl-map');
-  const $mapBackgroundImage = document.querySelector('.dl-map__background-image');
+  $mapBackgroundImage = document.querySelector('.dl-map__background-image');
 
   $mapBackgroundImage.style.top = `${margin.top}px`;
   $mapBackgroundImage.style.left = `${margin.left}px`;
@@ -487,7 +512,7 @@ const DOMContentLoaded = () => {
     const yMin = -(pixels.start.bottom - (startCP.y / mPerPx)) * mPerPx;
     const yMax = (pixels.start.top + (startCP.y / mPerPx)) * mPerPx;
     const ratio = (xMax - xMin) / (yMax - yMin);
-    const { height } = $mapContainer.getBoundingClientRect();
+    const { height } = $mapCheckboxesContainer.getBoundingClientRect();
     const width = height * ratio;
 
     $map.style.width = `${width}px`;
@@ -524,7 +549,7 @@ const DOMContentLoaded = () => {
       .attr('y2', d => scales.y(d.y2));
 
     // Add checkpoints
-    const d3checkpointsGroup = d3rootGroup
+    d3checkpointsGroup = d3rootGroup
       .append('g')
       .attr('class', 'dl-map__checkpoints');
 

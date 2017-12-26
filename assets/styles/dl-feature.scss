@@ -17,7 +17,9 @@
     }
   }
 
-  &__map-container {
+  &__map-checkboxes-container {
+    display: flex;
+
     height: 500px;
     margin-top: 20px;
   }
