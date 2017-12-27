@@ -170,8 +170,8 @@ let d3checkpointsGroup;
 let d3checkpointMarks;
 let d3checkpointCaptions;
 let d3links;
-let d3participantsGroup;
-let d3participantGroups;
+let d3participantMarksGroup;
+let d3participantMarks;
 
 // Update checkpoints
 const updateCheckpoints = () => {
@@ -219,22 +219,14 @@ const updateLinks = () => {
 
 // Init participant groups
 const initParicipantGroups = () => {
-  d3participantsGroup
+  d3participantMarksGroup
     .selectAll('*')
     .remove();
 
-  d3participantGroups = d3participantsGroup
-    .selectAll('g')
+  d3participantMarks = d3participantMarksGroup
+    .selectAll('circle')
     .data(selectedRaceParticipants)
     .enter()
-    .append('g')
-    .attr('class', 'dl-map__participant');
-
-  d3participantGroups
-    .append('path')
-    .attr('class', 'dl-map__participant-path');
-
-  d3participantGroups
     .append('circle')
     .attr('class', 'dl-map__participant-mark')
     .attr('r', 3);
@@ -266,17 +258,9 @@ const setParticipantsCoordinates = () => {
   });
 };
 
-// Draw participant paths
-const drawParticipantPaths = () => {
-  d3participantGroups
-    .select('.dl-map__participant-path')
-    .attr('d', d => participantPathGenerator(d.checkpoints.map(cp => coordinates.find(c => c.name === cp.name))));
-};
-
 // Place participants on map
 const placeParticipantsOnMap = () => {
-  d3participantGroups
-    .select('.dl-map__participant-mark')
+  d3participantMarks
     .attr('cx', d => scales.x(d.x))
     .attr('cy', d => scales.y(d.y));
 };
@@ -301,19 +285,13 @@ const addTableRowsEventListeners = () => {
     $tr.addEventListener('click', () => {
       $tr.classList.toggle('dl-table__row-opened');
 
-      const teamParticipants = d3participantGroups.filter(d => d.teamName === teamName);
+      const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === teamName);
 
-
-      teamParticipants
-        .selectAll('.dl-map__participant-path')
-        .style('stroke', $tr.classList.contains('dl-table__row-opened') ? scales.teamColor(teamName) : '');
-
-      teamParticipants
-        .selectAll('.dl-map__participant-mark')
+      teamParticipantMarks
         .attr('r', $tr.classList.contains('dl-table__row-opened') ? 5 : 3)
         .style('fill', $tr.classList.contains('dl-table__row-opened') ? scales.teamColor(teamName) : '');
 
-      teamParticipants.each((d, j, selection) => {
+      teamParticipantMarks.each((d, j, selection) => {
         const parent = selection[j].parentNode;
 
         parent.removeChild(selection[j]);
@@ -386,7 +364,6 @@ const DOMContentLoaded = () => {
       updateCheckpoints();
       updateLinks();
       initParicipantGroups();
-      drawParticipantPaths();
       setParticipantsCoordinates();
       placeParticipantsOnMap();
 
@@ -553,35 +530,34 @@ const DOMContentLoaded = () => {
       .append('g')
       .attr('class', 'dl-map__checkpoints');
 
-    d3checkpointMarks = d3checkpointsGroup
-      .selectAll('circle')
+    const d3checkpointGroups = d3checkpointsGroup
+      .selectAll('g')
       .data(coordinates)
       .enter()
+      .append('g')
+      .attr('class', 'dl-map__checkpoint')
+      .attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`);
+
+    d3checkpointMarks = d3checkpointGroups
       .append('circle')
       .attr('class', 'dl-map__checkpoint-mark')
-      .attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`)
       .style('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
       .style('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
 
-    d3checkpointCaptions = d3checkpointsGroup
-      .selectAll('text')
-      .data(coordinates)
-      .enter()
+    d3checkpointCaptions = d3checkpointGroups
       .append('text')
       .attr('class', 'dl-map__checkpoint-caption')
-      .attr('transform', d => `translate(${scales.x(d.x)}, ${scales.y(d.y)})`)
       .text(d => d.name);
 
     // Add participants
-    d3participantsGroup = d3rootGroup
+    d3participantMarksGroup = d3rootGroup
       .append('g')
-      .attr('class', 'dl-map__participants');
+      .attr('class', 'dl-map__participant-marks');
 
     updateCheckpoints();
     updateLinks();
     initParicipantGroups();
     setParticipantsCoordinates();
-    drawParticipantPaths();
     placeParticipantsOnMap();
 
     $tableContainer = document.querySelector('.dl-feature__table-container');
