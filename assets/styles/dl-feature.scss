@@ -45,6 +45,7 @@
 
     & .noUi-handle {
       top: 6px;
+      right: 0 !important;
 
       width: 17px;
       height: 22px;
@@ -71,12 +72,15 @@
       outline: none;
     }
 
+    & .noUi-connects {
+      border-radius: 0;
+    }
+
     & .noUi-connect {
       top: 5px;
 
       height: 1px;
 
-      border-radius: 0;
       background-color: blue;
       box-shadow: none;
     }

@@ -35,8 +35,6 @@ const destinations = {
   data: 'public/data',
 };
 
-const postCssPlugins = [autoprefixer];
-
 let version;
 
 gulp.task('clean', () =>
@@ -75,12 +73,12 @@ gulp.task('styles', () =>
     gulp.src(vendorStyles),
     gulp.src(sources.styles)
       .pipe(gulpSass())
-      .pipe(gulpPostcss(postCssPlugins))
-      .pipe(gulpCssnano({
-        discardUnused: { fontFace: false },
-        zindex: false,
-      })),
+      .pipe(gulpPostcss([autoprefixer])),
   )
+    .pipe(gulpCssnano({
+      discardUnused: { fontFace: false },
+      zindex: false,
+    }))
     .pipe(gulpConcat(`stylesheet-${version}.css`))
     .pipe(gulp.dest(destinations.root)));
 
