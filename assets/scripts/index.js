@@ -14,6 +14,8 @@ import uniq from 'lodash.uniq';
 import nouislider from 'nouislider';
 
 import featureTemplate from './templates/featureTemplate';
+import getAngleBetweenPoints from './tools/getAngleBetweenPoints';
+import getDistanceBetweenPoints from './tools/getDistanceBetweenPoints';
 import getPossibleLinks from './services/getPossibleLinks';
 import getSequentialColors from './services/getSequentialColors';
 import hexWithAlphaToRGBA from './tools/hexWithAlphaToRGBA';
@@ -148,6 +150,9 @@ const checkboxes = [
   { id: 'dl-show-map', label: 'Карта', checked: false },
 ];
 
+const shownTeams = [];
+const pathPieceLineStrokeWidth = 2;
+
 let coordinates;
 let links;
 let racesData;
@@ -170,6 +175,7 @@ let d3checkpointsGroup;
 let d3checkpointMarks;
 let d3checkpointCaptions;
 let d3links;
+let d3participantPathsGroup;
 let d3participantMarksGroup;
 let d3participantMarks;
 
@@ -217,8 +223,60 @@ const updateLinks = () => {
   d3links.style('stroke-width', d => scales.linkWidth(d.popularity));
 };
 
+// Draw participant paths
+const drawParticipantPaths = () => {
+  d3participantPathsGroup
+    .selectAll('*')
+    .remove();
+
+  if (!shownTeams.length) return;
+
+  const pathPieces = {};
+
+  flatten(shownTeams.map(st => st.participants)).forEach((p) => {
+    for (let i = 0; i < p.checkpoints.length - 1; i += 1) {
+      const pieceId1 = `${p.checkpoints[i].name}-${p.checkpoints[i + 1].name}`;
+      const pieceId2 = `${p.checkpoints[i + 1].name}-${p.checkpoints[i].name}`;
+
+      if (pathPieces[pieceId1]) {
+        pathPieces[pieceId1].push(p.teamName);
+      } else if (pathPieces[pieceId2]) {
+        pathPieces[pieceId2].push(p.teamName);
+      } else {
+        pathPieces[pieceId1] = [p.teamName];
+      }
+    }
+  });
+
+  Object.keys(pathPieces).forEach((key) => {
+    const uniqPaths = uniq(pathPieces[key]);
+    const p1 = coordinates.find(c => c.name === key.split('-')[0]);
+    const p2 = coordinates.find(c => c.name === key.split('-')[1]);
+    const angle = getAngleBetweenPoints(
+      { x: scales.x(p2.x), y: scales.y(p2.y) },
+      { x: scales.x(p1.x), y: scales.y(p1.y) },
+    );
+
+    const pathPieceGroup = d3participantPathsGroup
+      .append('g')
+      .attr('class', 'dl-map__path-piece')
+      .attr('transform', () => `translate(${scales.x(p1.x)}, ${scales.y(p1.y)}) rotate(${angle})`);
+
+    uniqPaths.forEach((up, i) => {
+      pathPieceGroup
+        .append('line')
+        .attr('class', 'dl-map__path-piece-line')
+        .attr('y1', (i - ((uniqPaths.length - 1) / 2)) * pathPieceLineStrokeWidth)
+        .attr('x2', getDistanceBetweenPoints({ x: scales.x(p1.x), y: scales.y(p1.y) }, { x: scales.x(p2.x), y: scales.y(p2.y) }))
+        .attr('y2', (i - ((uniqPaths.length - 1) / 2)) * pathPieceLineStrokeWidth)
+        .style('stroke-width', pathPieceLineStrokeWidth)
+        .style('stroke', scales.teamColor(up));
+    });
+  });
+};
+
 // Init participant groups
-const initParicipantGroups = () => {
+const initParicipantMarks = () => {
   d3participantMarksGroup
     .selectAll('*')
     .remove();
@@ -259,7 +317,7 @@ const setParticipantsCoordinates = () => {
 };
 
 // Place participants on map
-const placeParticipantsOnMap = () => {
+const placeParticipantMarksOnMap = () => {
   d3participantMarks
     .attr('cx', d => scales.x(d.x))
     .attr('cy', d => scales.y(d.y));
@@ -268,11 +326,11 @@ const placeParticipantsOnMap = () => {
 // Add event listeners to table rows
 const addTableRowsEventListeners = () => {
   document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
-    const teamName = selectedRaceTeams[i].name;
+    const team = selectedRaceTeams[i];
 
     $tr.addEventListener('mouseover', () => {
       if (!$tr.classList.contains('dl-table__row-opened')) {
-        $tr.style.backgroundColor = hexWithAlphaToRGBA(scales.teamColor(teamName), 0.5);
+        $tr.style.backgroundColor = hexWithAlphaToRGBA(scales.teamColor(team.name), 0.5);
       }
     });
 
@@ -285,11 +343,12 @@ const addTableRowsEventListeners = () => {
     $tr.addEventListener('click', () => {
       $tr.classList.toggle('dl-table__row-opened');
 
-      const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === teamName);
+      const isRowOpened = $tr.classList.contains('dl-table__row-opened');
+      const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === team.name);
 
       teamParticipantMarks
-        .attr('r', $tr.classList.contains('dl-table__row-opened') ? 5 : 3)
-        .style('fill', $tr.classList.contains('dl-table__row-opened') ? scales.teamColor(teamName) : '');
+        .attr('r', isRowOpened ? 5 : 3)
+        .style('fill', isRowOpened ? scales.teamColor(team.name) : '');
 
       teamParticipantMarks.each((d, j, selection) => {
         const parent = selection[j].parentNode;
@@ -297,6 +356,14 @@ const addTableRowsEventListeners = () => {
         parent.removeChild(selection[j]);
         parent.appendChild(selection[j]);
       });
+
+      if (isRowOpened) {
+        shownTeams.push(team);
+      } else {
+        shownTeams.splice(shownTeams.findIndex(st => st.name === team.name), 1);
+      }
+
+      drawParticipantPaths();
     });
   });
 };
@@ -349,13 +416,13 @@ const DOMContentLoaded = () => {
       $raceSelectDropdown.classList.remove('dl-race-select__dropdown-shown');
 
       selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
-      selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
+      selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
       currentTime = 0;
 
       $timeSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: Math.max(...selectedRaceTeams.map(p => p.time)),
+          max: Math.max(...selectedRaceTeams.map(srt => srt.time)),
         },
       });
 
@@ -363,9 +430,9 @@ const DOMContentLoaded = () => {
 
       updateCheckpoints();
       updateLinks();
-      initParicipantGroups();
+      initParicipantMarks();
       setParticipantsCoordinates();
-      placeParticipantsOnMap();
+      placeParticipantMarksOnMap();
 
       $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
 
@@ -416,7 +483,7 @@ const DOMContentLoaded = () => {
     // Parse races data
     racesData = parseRacesData(rawData.slice(0, -1), races);
     selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
-    selectedRaceParticipants = flatten(selectedRaceTeams.map(t => t.participants));
+    selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
 
     // Create time slider
     $timeSlider = document.querySelector('.dl-feature__time-slider');
@@ -430,7 +497,7 @@ const DOMContentLoaded = () => {
         ],
         range: {
           min: 0,
-          max: Math.max(...selectedRaceTeams.map(p => p.time)),
+          max: Math.max(...selectedRaceTeams.map(srt => srt.time)),
         },
         step: 60,
         pips: {
@@ -445,7 +512,7 @@ const DOMContentLoaded = () => {
         currentTime = +values[handle];
 
         setParticipantsCoordinates();
-        placeParticipantsOnMap();
+        placeParticipantMarksOnMap();
       });
 
     // Parse coordinates data
@@ -549,16 +616,21 @@ const DOMContentLoaded = () => {
       .attr('class', 'dl-map__checkpoint-caption')
       .text(d => d.name);
 
-    // Add participants
+    // Add participant paths
+    d3participantPathsGroup = d3rootGroup
+      .append('g')
+      .attr('class', 'dl-map__participant-paths');
+
+    // Add participant marks
     d3participantMarksGroup = d3rootGroup
       .append('g')
       .attr('class', 'dl-map__participant-marks');
 
     updateCheckpoints();
     updateLinks();
-    initParicipantGroups();
+    initParicipantMarks();
     setParticipantsCoordinates();
-    placeParticipantsOnMap();
+    placeParticipantMarksOnMap();
 
     $tableContainer = document.querySelector('.dl-feature__table-container');
     $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
