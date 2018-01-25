@@ -159,9 +159,12 @@ let racesData;
 let selectedRace = 'М 4 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
+let maxTime;
 let currentTime = 0;
+let intervalId;
 
 let $timeSlider;
+let $playerButton;
 let $mapCheckboxesContainer;
 let $map;
 let $mapBackgroundImage;
@@ -417,16 +420,20 @@ const DOMContentLoaded = () => {
 
       selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
       selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
+      maxTime = Math.max(...selectedRaceTeams.map(srt => srt.time));
       currentTime = 0;
 
       $timeSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
-          max: Math.max(...selectedRaceTeams.map(srt => srt.time)),
+          max: maxTime,
         },
       });
 
       $timeSlider.noUiSlider.set(currentTime);
+
+      $playerButton.classList.remove('dl-feature__player-button--stop');
+      clearInterval(intervalId);
 
       updateCheckpoints();
       updateLinks();
@@ -484,6 +491,7 @@ const DOMContentLoaded = () => {
     racesData = parseRacesData(rawData.slice(0, -1), races);
     selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
     selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
+    maxTime = Math.max(...selectedRaceTeams.map(srt => srt.time));
 
     // Create time slider
     $timeSlider = document.querySelector('.dl-feature__time-slider');
@@ -497,7 +505,7 @@ const DOMContentLoaded = () => {
         ],
         range: {
           min: 0,
-          max: Math.max(...selectedRaceTeams.map(srt => srt.time)),
+          max: maxTime,
         },
         step: 60,
         pips: {
@@ -507,13 +515,44 @@ const DOMContentLoaded = () => {
             to: value => value / 3600,
           },
         },
-      })
-      .on('slide', (values, handle) => {
-        currentTime = +values[handle];
-
-        setParticipantsCoordinates();
-        placeParticipantMarksOnMap();
       });
+
+    $timeSlider.noUiSlider.on('slide', (values, handle) => {
+      currentTime = +values[handle];
+
+      setParticipantsCoordinates();
+      placeParticipantMarksOnMap();
+    });
+
+    // Player
+    $playerButton = document.querySelector('.dl-feature__player-button');
+
+    $playerButton.addEventListener('click', () => {
+      if ($playerButton.classList.contains('dl-feature__player-button--stop')) {
+        $playerButton.classList.remove('dl-feature__player-button--stop');
+        clearInterval(intervalId);
+      } else {
+        $playerButton.classList.add('dl-feature__player-button--stop');
+
+        intervalId = setInterval(() => {
+          if (currentTime === maxTime) {
+            currentTime = 0;
+
+            $timeSlider.noUiSlider.set(currentTime);
+
+            $playerButton.classList.remove('dl-feature__player-button--stop');
+            clearInterval(intervalId);
+          } else {
+            currentTime += 1;
+
+            $timeSlider.noUiSlider.set(currentTime);
+
+            setParticipantsCoordinates();
+            placeParticipantMarksOnMap();
+          }
+        }, 1);
+      }
+    });
 
     // Parse coordinates data
     coordinates = parseCoordinatesData(lastOf(rawData));

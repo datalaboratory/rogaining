@@ -24,6 +24,10 @@
     margin-top: 20px;
   }
 
+  &__time-slider-and-player-button {
+    display: flex;
+  }
+
   &__time-slider {
     height: 30px;
 
@@ -102,6 +106,22 @@
       font-family: $sans-serif;
       font-size: 16px;
       line-height: 1em;
+    }
+  }
+
+  &__player-button {
+    width: 20px;
+    height: 20px;
+    margin: 20px 0 0 20px;
+
+    cursor: pointer;
+
+    opacity: 0.7;
+    background-image: url(../img/play-button.png);
+    background-size: 20px;
+
+    &--stop {
+      background-image: url(../img/stop-button.png);
     }
   }
 
