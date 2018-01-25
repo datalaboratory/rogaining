@@ -19,7 +19,7 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
             const ucpParticipants = srt.participants.filter(p => p.checkpoints[j].name === ucp);
 
             return {
-              color: cpColorScale(ucp),
+              color: cpColorScale(ucp[0]),
               height: (100 * ucpParticipants.length) / srt.participants.length,
               fromStart: Math.max(...ucpParticipants.map(p => p.checkpoints[j].fromStart)),
             };
