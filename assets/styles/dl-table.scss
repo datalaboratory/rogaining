@@ -6,15 +6,16 @@
 
   &__header {
     display: flex;
+    align-items: center;
 
-    width: 530px;
+    width: 1000px;
+    height: 32px;
 
     border-bottom: 1px rgba(0, 0, 0, 0.167) solid;
 
     font-weight: bold;
-    line-height: 2em;
 
-    &-stuck {
+    &--stuck {
       position: fixed;
       z-index: 1;
       top: 0;
@@ -29,13 +30,12 @@
 
   &__row {
     display: flex;
+    align-items: center;
 
-    width: 530px;
+    width: 1000px;
 
     cursor: pointer;
     transition: background-color 0.1s ease-out;
-
-    line-height: 2em;
   }
 
   &__number {
@@ -45,13 +45,40 @@
   }
 
   &__name {
+    position: relative;
+
+    width: 200px;
+    margin-left: 20px;
+  }
+
+  &__name-short {
     overflow: hidden;
 
-    width: 300px;
-    margin-left: 20px;
+    width: 100%;
 
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  &__name-full {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+
+    visibility: hidden;
+
+    padding-right: 3px;
+
+    white-space: nowrap;
+  }
+
+  &__name:hover &__name-short {
+    visibility: hidden;
+  }
+
+  &__name:hover &__name-full {
+    visibility: visible;
   }
 
   &__points {
@@ -62,8 +89,50 @@
   }
 
   &__time {
-    width: 80px;
+    width: 70px;
     margin-left: 20px;
+  }
+
+  &__checkpoints {
+    position: relative;
+
+    width: 580px;
+  }
+
+  &__checkpoints-background {
+    position: absolute;
+    top: 50%;
+
+    height: 1px;
+
+    transform: translateY(-50%);
+
+    background-color: rgba(0, 0, 0, 0.083);
+  }
+
+  &__checkpoint-part {
+    position: absolute;
+
+    box-sizing: border-box;
+    width: 7px;
+    padding: 2px;
+
+    transform: translateX(-50%);
+  }
+
+  &__checkpoint-part-mark {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__checkpoint:hover &__checkpoint-part {
+    padding: 1px;
+  }
+
+  &__checkpoint:hover &__checkpoint-part &__checkpoint-part-mark {
+    box-sizing: border-box;
+
+    border: 1px solid #000;
   }
 
   &__tabular {

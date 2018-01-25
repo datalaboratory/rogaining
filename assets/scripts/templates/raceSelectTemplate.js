@@ -5,7 +5,7 @@ const raceSelectTemplate = (races, selectedRace) => {
         let optionClass = 'dl-race-select__option';
 
         if (r.id === selectedRace) {
-          optionClass += ' dl-race-select__option-selected';
+          optionClass += ' dl-race-select__option--selected';
         }
 
         return `

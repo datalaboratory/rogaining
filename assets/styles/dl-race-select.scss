@@ -24,7 +24,7 @@
 
     font-size: 28px;
 
-    &-activated {
+    &--activated {
       padding-bottom: 3px;
 
       border-bottom: none;
@@ -46,7 +46,7 @@
       font-size: 10px;
     }
 
-    &-activated::after {
+    &--activated::after {
       top: calc(50% - 1px);
     }
   }
@@ -64,7 +64,7 @@
     border: 1px solid #ccc;
     background-color: #fff;
 
-    &-shown {
+    &--shown {
       visibility: visible;
     }
   }
@@ -86,11 +86,11 @@
 
     cursor: pointer;
 
-    &-selected {
+    &--selected {
       background-color: #dadee1;
     }
 
-    &:not(.dl-race-select__option-selected):hover {
+    &:not(.dl-race-select__option--selected):hover {
       background-color: #ebecee;
     }
   }

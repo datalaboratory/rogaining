@@ -13,14 +13,16 @@
     & input {
       margin-right: 5px;
 
-      font-size: 16px;
       cursor: pointer;
+
+      font-size: 16px;
     }
 
     & label {
-      font-size: 14px;
       cursor: pointer;
       user-select: none;
+
+      font-size: 14px;
     }
   }
 }

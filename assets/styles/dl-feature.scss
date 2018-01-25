@@ -8,13 +8,13 @@
 
   &__header {
     display: flex;
+  }
 
-    &-caption {
-      margin-right: 20px;
+  &__header-caption {
+    margin-right: 20px;
 
-      font-family: $sans-serif;
-      font-size: 28px;
-    }
+    font-family: $sans-serif;
+    font-size: 28px;
   }
 
   &__map-checkboxes-container {
@@ -38,14 +38,6 @@
     border-radius: 0;
     background-color: transparent;
     box-shadow: none;
-
-    &-legend {
-      padding-top: 8px;
-
-      font-family: $sans-serif;
-      font-size: 16px;
-      line-height: 1em;
-    }
 
     & .noUi-handle {
       top: 6px;
@@ -107,6 +99,14 @@
       font-size: 16px;
       line-height: 1em;
     }
+  }
+
+  &__time-slider-legend {
+    padding-top: 8px;
+
+    font-family: $sans-serif;
+    font-size: 16px;
+    line-height: 1em;
   }
 
   &__player-button {

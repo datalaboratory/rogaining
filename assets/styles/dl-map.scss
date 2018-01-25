@@ -35,14 +35,12 @@
     fill: #666;
   }
 
-  &__participant {
-    &-path {
-      fill: none;
-    }
+  &__participant-path {
+    fill: none;
+  }
 
-    &-mark {
-      stroke: #fff;
-      fill: #999;
-    }
+  &__participant-mark {
+    stroke: #fff;
+    fill: #999;
   }
 }

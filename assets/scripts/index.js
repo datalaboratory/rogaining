@@ -18,7 +18,7 @@ import getAngleBetweenPoints from './tools/getAngleBetweenPoints';
 import getDistanceBetweenPoints from './tools/getDistanceBetweenPoints';
 import getPossibleLinks from './services/getPossibleLinks';
 import getSequentialColors from './services/getSequentialColors';
-import hexWithAlphaToRGBA from './tools/hexWithAlphaToRGBA';
+import hexWithAlphaToRGB from './tools/hexWithAlphaToRGB';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
@@ -150,7 +150,6 @@ const checkboxes = [
   { id: 'dl-show-map', label: 'Карта', checked: false },
 ];
 
-const shownTeams = [];
 const pathPieceLineStrokeWidth = 2;
 
 let coordinates;
@@ -159,6 +158,7 @@ let racesData;
 let selectedRace = 'М 4 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
+let shownTeams = [];
 let maxTime;
 let currentTime = 0;
 let intervalId;
@@ -332,26 +332,29 @@ const addTableRowsEventListeners = () => {
     const team = selectedRaceTeams[i];
 
     $tr.addEventListener('mouseover', () => {
-      if (!$tr.classList.contains('dl-table__row-opened')) {
-        $tr.style.backgroundColor = hexWithAlphaToRGBA(scales.teamColor(team.name), 0.5);
+      if (!$tr.classList.contains('dl-table__row--selected')) {
+        const color = hexWithAlphaToRGB(scales.teamColor(team.name), 0.5);
+        $tr.style.backgroundColor = color;
+        $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = color;
       }
     });
 
     $tr.addEventListener('mouseout', () => {
-      if (!$tr.classList.contains('dl-table__row-opened')) {
+      if (!$tr.classList.contains('dl-table__row--selected')) {
         $tr.style.backgroundColor = '';
+        $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = '';
       }
     });
 
     $tr.addEventListener('click', () => {
-      $tr.classList.toggle('dl-table__row-opened');
+      $tr.classList.toggle('dl-table__row--selected');
 
-      const isRowOpened = $tr.classList.contains('dl-table__row-opened');
+      const isRowSelected = $tr.classList.contains('dl-table__row--selected');
       const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === team.name);
 
       teamParticipantMarks
-        .attr('r', isRowOpened ? 5 : 3)
-        .style('fill', isRowOpened ? scales.teamColor(team.name) : '');
+        .attr('r', isRowSelected ? 5 : 3)
+        .style('fill', isRowSelected ? scales.teamColor(team.name) : '');
 
       teamParticipantMarks.each((d, j, selection) => {
         const parent = selection[j].parentNode;
@@ -360,7 +363,7 @@ const addTableRowsEventListeners = () => {
         parent.appendChild(selection[j]);
       });
 
-      if (isRowOpened) {
+      if (isRowSelected) {
         shownTeams.push(team);
       } else {
         shownTeams.splice(shownTeams.findIndex(st => st.name === team.name), 1);
@@ -374,10 +377,10 @@ const addTableRowsEventListeners = () => {
 // Window scroll — fix table header if needed
 const scroll = () => {
   if (document.documentElement.scrollTop > tableHeaderOffsetTop) {
-    $tableHeader.classList.add('dl-table__header-stuck');
+    $tableHeader.classList.add('dl-table__header--stuck');
     $tableBody.classList.add('dl-table__body-with-offset');
   } else {
-    $tableHeader.classList.remove('dl-table__header-stuck');
+    $tableHeader.classList.remove('dl-table__header--stuck');
     $tableBody.classList.remove('dl-table__body-with-offset');
   }
 };
@@ -394,13 +397,13 @@ const DOMContentLoaded = () => {
   const $raceSelectOptions = document.querySelectorAll('.dl-race-select__option');
 
   $raceSelect.addEventListener('blur', () => {
-    $raceSelectToggle.classList.remove('dl-race-select__toggle-activated');
-    $raceSelectDropdown.classList.remove('dl-race-select__dropdown-shown');
+    $raceSelectToggle.classList.remove('dl-race-select__toggle--activated');
+    $raceSelectDropdown.classList.remove('dl-race-select__dropdown--shown');
   });
 
   $raceSelectToggle.addEventListener('click', () => {
-    $raceSelectToggle.classList.toggle('dl-race-select__toggle-activated');
-    $raceSelectDropdown.classList.toggle('dl-race-select__dropdown-shown');
+    $raceSelectToggle.classList.toggle('dl-race-select__toggle--activated');
+    $raceSelectDropdown.classList.toggle('dl-race-select__dropdown--shown');
   });
 
   $raceSelectOptions.forEach(($o1, i) => {
@@ -408,15 +411,15 @@ const DOMContentLoaded = () => {
       selectedRace = races[i].id;
 
       $raceSelectOptions.forEach(($o2) => {
-        if ($o2.classList.contains('dl-race-select__option-selected')) {
-          $o2.classList.remove('dl-race-select__option-selected');
+        if ($o2.classList.contains('dl-race-select__option--selected')) {
+          $o2.classList.remove('dl-race-select__option--selected');
         }
       });
 
-      $o1.classList.add('dl-race-select__option-selected');
+      $o1.classList.add('dl-race-select__option--selected');
       $raceSelectToggle.innerHTML = selectedRace;
-      $raceSelectToggle.classList.remove('dl-race-select__toggle-activated');
-      $raceSelectDropdown.classList.remove('dl-race-select__dropdown-shown');
+      $raceSelectToggle.classList.remove('dl-race-select__toggle--activated');
+      $raceSelectDropdown.classList.remove('dl-race-select__dropdown--shown');
 
       selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
       selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
@@ -441,7 +444,10 @@ const DOMContentLoaded = () => {
       setParticipantsCoordinates();
       placeParticipantMarksOnMap();
 
-      $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
+      shownTeams = [];
+      drawParticipantPaths();
+
+      $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, maxTime, scales.cpColor);
 
       addTableRowsEventListeners();
     });
@@ -672,7 +678,7 @@ const DOMContentLoaded = () => {
     placeParticipantMarksOnMap();
 
     $tableContainer = document.querySelector('.dl-feature__table-container');
-    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams);
+    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, maxTime, scales.cpColor);
 
     $tableHeader = document.querySelector('.dl-table__header');
     $tableBody = document.querySelector('.dl-table__body');
