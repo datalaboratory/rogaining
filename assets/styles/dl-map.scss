@@ -9,8 +9,6 @@
     position: absolute;
     z-index: -1;
 
-    visibility: hidden;
-
     opacity: 0.2;
     background-image: url('../img/Финал2017-75.jpg');
     background-size: 100% 100%;
@@ -22,7 +20,7 @@
   }
 
   &__link {
-    stroke: #eee;
+    stroke: #999;
   }
 
   &__checkpoint-caption {

@@ -145,12 +145,12 @@ const scales = {
 const participantPathGenerator = d3line();
 
 const checkboxes = [
-  { id: 'dl-show-checkpoints', label: 'Чекпоинты', checked: true },
-  { id: 'dl-show-paths-popularity', label: 'Популярность путей', checked: true },
-  { id: 'dl-show-map', label: 'Карта', checked: false },
+  { id: 'dl-show-checkpoints-popularity', label: 'Популярность КП', checked: false },
+  { id: 'dl-show-paths-popularity', label: 'Популярность путей', checked: false },
 ];
 
 const pathPieceLineStrokeWidth = 2;
+const defaultCheckpointRadius = 10;
 
 let coordinates;
 let links;
@@ -196,12 +196,13 @@ const updateCheckpoints = () => {
 
   scales.cpRadius.domain([0, Math.max(...coordinates.map(c => c.popularity))]);
 
+  const isCheckpointPopularityChecked = document.getElementById('dl-show-checkpoints-popularity').checked;
   d3checkpointMarks
-    .attr('r', d => scales.cpRadius(d.popularity))
+    .attr('r', d => (isCheckpointPopularityChecked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius))
     .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
 
   d3checkpointCaptions
-    .attr('dx', d => scales.cpRadius(d.popularity) + 3)
+    .attr('dx', d => (isCheckpointPopularityChecked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3))
     .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
 };
 
@@ -223,7 +224,10 @@ const updateLinks = () => {
 
   scales.linkWidth.domain([0, Math.max(...links.map(l => l.popularity))]);
 
-  d3links.style('stroke-width', d => scales.linkWidth(d.popularity));
+  const isPathPopularityChecked = document.getElementById('dl-show-paths-popularity').checked;
+  d3links.style('stroke-width', d => (isPathPopularityChecked || !d.popularity
+    ? scales.linkWidth(d.popularity)
+    : pathPieceLineStrokeWidth));
 };
 
 // Draw participant paths
@@ -460,12 +464,15 @@ const DOMContentLoaded = () => {
 
   $checkboxes.forEach(($c, i) => {
     $c.addEventListener('change', () => {
-      if (checkboxes[i].id === 'dl-show-checkpoints') {
-        d3checkpointsGroup.style('visibility', $c.checked ? 'visible' : 'hidden');
+      if (checkboxes[i].id === 'dl-show-checkpoints-popularity') {
+        d3checkpointMarks
+          .attr('r', d => ($c.checked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius));
+        d3checkpointCaptions
+          .attr('dx', d => ($c.checked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3));
       } else if (checkboxes[i].id === 'dl-show-paths-popularity') {
-        d3links.style('visibility', $c.checked ? 'visible' : 'hidden');
-      } else {
-        $mapBackgroundImage.style.visibility = $c.checked ? 'visible' : '';
+        d3links.style('stroke-width', d => ($c.checked || !d.popularity
+          ? scales.linkWidth(d.popularity)
+          : pathPieceLineStrokeWidth));
       }
     });
   });
