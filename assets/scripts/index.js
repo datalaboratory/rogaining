@@ -330,29 +330,47 @@ const initParicipantMarks = () => {
     .attr('class', 'dl-map__participant-mark')
     .attr('r', 3);
 
-  d3participantMarks.on('click', (d) => {
-    document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
-      const team = selectedRaceTeams[i];
-      if (team.name !== d.teamName) {
-        return;
-      }
-      $tr.classList.toggle('dl-table__row--selected');
-
-      const isRowSelected = $tr.classList.contains('dl-table__row--selected');
-
-      if (isRowSelected) {
-        selectTableRow($tr, team);
-      } else {
-        unselectTableRow($tr);
-      }
-
-      toggleTeamParticipantMarks(isRowSelected, team);
-    });
-  });
-
   d3participantMarks
-    .append('title')
-    .text(d => d.teamName);
+    .on('mouseover', (d) => {
+      document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+        const team = selectedRaceTeams[i];
+        if (team.name !== d.teamName) {
+          return;
+        }
+        selectTableRow($tr, team);
+      });
+    })
+    .on('mouseleave', (d) => {
+      document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+        const team = selectedRaceTeams[i];
+        if (team.name !== d.teamName) {
+          return;
+        }
+        const isRowSelected = $tr.classList.contains('dl-table__row--selected');
+        if (!isRowSelected) {
+          unselectTableRow($tr);
+        }
+      });
+    })
+    .on('click', (d) => {
+      document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+        const team = selectedRaceTeams[i];
+        if (team.name !== d.teamName) {
+          return;
+        }
+        $tr.classList.toggle('dl-table__row--selected');
+
+        const isRowSelected = $tr.classList.contains('dl-table__row--selected');
+
+        if (isRowSelected) {
+          selectTableRow($tr, team);
+        } else {
+          unselectTableRow($tr);
+        }
+
+        toggleTeamParticipantMarks(isRowSelected, team);
+      });
+    });
 };
 
 // Set participants coordinates
