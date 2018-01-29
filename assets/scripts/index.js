@@ -282,6 +282,40 @@ const drawParticipantPaths = () => {
   });
 };
 
+const selectTableRow = ($tr, team) => {
+  const color = hexWithAlphaToRGB(scales.teamColor(team.name), 0.5);
+  $tr.style.backgroundColor = color;
+  $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = color;
+};
+
+const unselectTableRow = ($tr) => {
+  $tr.style.backgroundColor = '';
+  $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = '';
+};
+
+const toggleTeamParticipantMarks = (isRowSelected, team) => {
+  const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === team.name);
+
+  teamParticipantMarks
+    .attr('r', isRowSelected ? 5 : 3)
+    .style('fill', isRowSelected ? scales.teamColor(team.name) : '');
+
+  teamParticipantMarks.each((d, j, selection) => {
+    const parent = selection[j].parentNode;
+
+    parent.removeChild(selection[j]);
+    parent.appendChild(selection[j]);
+  });
+
+  if (isRowSelected) {
+    shownTeams.push(team);
+  } else {
+    shownTeams.splice(shownTeams.findIndex(st => st.name === team.name), 1);
+  }
+
+  drawParticipantPaths();
+};
+
 // Init participant groups
 const initParicipantMarks = () => {
   d3participantMarksGroup
@@ -295,6 +329,30 @@ const initParicipantMarks = () => {
     .append('circle')
     .attr('class', 'dl-map__participant-mark')
     .attr('r', 3);
+
+  d3participantMarks.on('click', (d) => {
+    document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+      const team = selectedRaceTeams[i];
+      if (team.name !== d.teamName) {
+        return;
+      }
+      $tr.classList.toggle('dl-table__row--selected');
+
+      const isRowSelected = $tr.classList.contains('dl-table__row--selected');
+
+      if (isRowSelected) {
+        selectTableRow($tr, team);
+      } else {
+        unselectTableRow($tr);
+      }
+
+      toggleTeamParticipantMarks(isRowSelected, team);
+    });
+  });
+
+  d3participantMarks
+    .append('title')
+    .text(d => d.teamName);
 };
 
 // Set participants coordinates
@@ -337,16 +395,13 @@ const addTableRowsEventListeners = () => {
 
     $tr.addEventListener('mouseover', () => {
       if (!$tr.classList.contains('dl-table__row--selected')) {
-        const color = hexWithAlphaToRGB(scales.teamColor(team.name), 0.5);
-        $tr.style.backgroundColor = color;
-        $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = color;
+        selectTableRow($tr, team);
       }
     });
 
     $tr.addEventListener('mouseout', () => {
       if (!$tr.classList.contains('dl-table__row--selected')) {
-        $tr.style.backgroundColor = '';
-        $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = '';
+        unselectTableRow($tr);
       }
     });
 
@@ -354,26 +409,8 @@ const addTableRowsEventListeners = () => {
       $tr.classList.toggle('dl-table__row--selected');
 
       const isRowSelected = $tr.classList.contains('dl-table__row--selected');
-      const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === team.name);
 
-      teamParticipantMarks
-        .attr('r', isRowSelected ? 5 : 3)
-        .style('fill', isRowSelected ? scales.teamColor(team.name) : '');
-
-      teamParticipantMarks.each((d, j, selection) => {
-        const parent = selection[j].parentNode;
-
-        parent.removeChild(selection[j]);
-        parent.appendChild(selection[j]);
-      });
-
-      if (isRowSelected) {
-        shownTeams.push(team);
-      } else {
-        shownTeams.splice(shownTeams.findIndex(st => st.name === team.name), 1);
-      }
-
-      drawParticipantPaths();
+      toggleTeamParticipantMarks(isRowSelected, team);
     });
   });
 };
