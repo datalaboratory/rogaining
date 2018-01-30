@@ -24,6 +24,7 @@
     & label {
       cursor: pointer;
       user-select: none;
+      vertical-align: middle;
 
       font-size: 14px;
     }
@@ -40,8 +41,7 @@
     line-height: 1.6;
 
     & img {
-      width: 55px;
-      height: auto;
+      width: 70px;
       margin-bottom: 10px;
     }
 
