@@ -2,6 +2,8 @@
 
 .dl-checkboxes {
   margin-left: 20px;
+  display: flex;
+  flex-direction: column;
 
   &__checkbox-container {
     font-family: $sans-serif;
@@ -23,6 +25,29 @@
       user-select: none;
 
       font-size: 14px;
+    }
+
+    &-logo {
+      margin-top: auto;
+
+      display: flex;
+      flex-direction: column;
+
+      font-family: $sans-serif;
+      font-size: 14px;
+
+      line-height: 1.6;
+
+      & img {
+        width: 55px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      & a {
+        letter-spacing: 0.2px;
+        color: black;
+      }
     }
   }
 }
