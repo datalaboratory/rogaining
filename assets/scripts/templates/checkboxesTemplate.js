@@ -15,6 +15,12 @@ const checkboxesTemplate = (checkboxes) => {
   return `
     <div class="dl-checkboxes">
       ${checkboxContainers}
+      <div class="dl-checkboxes__checkbox-container-logo">
+        <img src="img/dl-logo.png"/>
+        Визуализация
+        <br/>
+        <a href="https://datalaboratory.ru/">Лаборатории данных</a>
+      </div>
     </div>
   `;
 };
