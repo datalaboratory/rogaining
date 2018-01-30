@@ -197,6 +197,7 @@ const updateCheckpoints = () => {
   scales.cpRadius.domain([0, Math.max(...coordinates.map(c => c.popularity))]);
 
   const isCheckpointPopularityChecked = document.getElementById('dl-show-checkpoints-popularity').checked;
+
   d3checkpointMarks
     .attr('r', d => (isCheckpointPopularityChecked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius))
     .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
@@ -224,10 +225,9 @@ const updateLinks = () => {
 
   scales.linkWidth.domain([0, Math.max(...links.map(l => l.popularity))]);
 
-  const isPathPopularityChecked = document.getElementById('dl-show-paths-popularity').checked;
-  d3links.style('stroke-width', d => (isPathPopularityChecked || !d.popularity
-    ? scales.linkWidth(d.popularity)
-    : pathPieceLineStrokeWidth));
+  d3links.style('stroke-width', d => (document.getElementById('dl-show-paths-popularity').checked || !d.popularity ?
+    scales.linkWidth(d.popularity) :
+    pathPieceLineStrokeWidth));
 };
 
 // Draw participant paths
@@ -284,6 +284,7 @@ const drawParticipantPaths = () => {
 
 const selectTableRow = ($tr, team) => {
   const color = hexWithAlphaToRGB(scales.teamColor(team.name), 0.5);
+
   $tr.style.backgroundColor = color;
   $tr.getElementsByClassName('dl-table__name-full')[0].style.backgroundColor = color;
 };
@@ -334,39 +335,30 @@ const initParicipantMarks = () => {
     .on('mouseover', (d) => {
       document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
         const team = selectedRaceTeams[i];
-        if (team.name !== d.teamName) {
-          return;
-        }
+
+        if (team.name !== d.teamName) return;
+
         selectTableRow($tr, team);
       });
     })
     .on('mouseleave', (d) => {
       document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
-        const team = selectedRaceTeams[i];
-        if (team.name !== d.teamName) {
-          return;
-        }
-        const isRowSelected = $tr.classList.contains('dl-table__row--selected');
-        if (!isRowSelected) {
-          unselectTableRow($tr);
-        }
+        if (selectedRaceTeams[i].name !== d.teamName) return;
+        if (!$tr.classList.contains('dl-table__row--selected')) unselectTableRow($tr);
       });
     })
     .on('click', (d) => {
       document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
         const team = selectedRaceTeams[i];
-        if (team.name !== d.teamName) {
-          return;
-        }
+
+        if (team.name !== d.teamName) return;
+
         $tr.classList.toggle('dl-table__row--selected');
 
         const isRowSelected = $tr.classList.contains('dl-table__row--selected');
 
-        if (isRowSelected) {
-          selectTableRow($tr, team);
-        } else {
-          unselectTableRow($tr);
-        }
+        if (isRowSelected) selectTableRow($tr, team);
+        else unselectTableRow($tr);
 
         toggleTeamParticipantMarks(isRowSelected, team);
       });
@@ -412,15 +404,11 @@ const addTableRowsEventListeners = () => {
     const team = selectedRaceTeams[i];
 
     $tr.addEventListener('mouseover', () => {
-      if (!$tr.classList.contains('dl-table__row--selected')) {
-        selectTableRow($tr, team);
-      }
+      if (!$tr.classList.contains('dl-table__row--selected')) selectTableRow($tr, team);
     });
 
     $tr.addEventListener('mouseout', () => {
-      if (!$tr.classList.contains('dl-table__row--selected')) {
-        unselectTableRow($tr);
-      }
+      if (!$tr.classList.contains('dl-table__row--selected')) unselectTableRow($tr);
     });
 
     $tr.addEventListener('click', () => {
@@ -513,27 +501,25 @@ const DOMContentLoaded = () => {
   });
 
   // Checkboxes
-  document.querySelector('.dl-checkboxes').style.marginTop = `${margin.top}px`;
+  document.querySelector('.dl-checkboxes-and-logo').style.marginTop = `${margin.top}px`;
 
-  const $checkboxes = document.querySelectorAll('.dl-checkboxes input');
+  const $checkboxes = document.querySelectorAll('.dl-checkboxes-and-logo input');
 
   $checkboxes.forEach(($c, i) => {
     $c.addEventListener('change', () => {
       if (checkboxes[i].id === 'dl-show-checkpoints-popularity') {
-        d3checkpointMarks
-          .attr('r', d => ($c.checked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius));
-        d3checkpointCaptions
-          .attr('dx', d => ($c.checked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3));
+        d3checkpointMarks.attr('r', d => ($c.checked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius));
+        d3checkpointCaptions.attr('dx', d => ($c.checked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3));
       } else if (checkboxes[i].id === 'dl-show-paths-popularity') {
-        d3links.style('stroke-width', d => ($c.checked || !d.popularity
-          ? scales.linkWidth(d.popularity)
-          : pathPieceLineStrokeWidth));
+        d3links.style('stroke-width', d => ($c.checked || !d.popularity ?
+          scales.linkWidth(d.popularity) :
+          pathPieceLineStrokeWidth));
       }
     });
   });
 
   // Set background image size
-  $mapCheckboxesContainer = document.querySelector('.dl-feature__map-checkboxes-container');
+  $mapCheckboxesContainer = document.querySelector('.dl-feature__map-checkboxes-and-logo-container');
   $map = document.querySelector('.dl-map');
   $mapBackgroundImage = document.querySelector('.dl-map__background-image');
 
