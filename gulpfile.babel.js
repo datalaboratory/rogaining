@@ -23,8 +23,8 @@ const sources = {
   index: 'assets/index.template.html',
   scripts: 'assets/scripts/**/*.js',
   styles: 'assets/styles/**/*.scss',
-  img: 'assets/img/*',
-  data: 'assets/data/*',
+  img: 'assets/img/**/*',
+  data: 'assets/data/**/*',
 };
 
 const vendorStyles = ['node_modules/nouislider/distribute/nouislider.min.css'];

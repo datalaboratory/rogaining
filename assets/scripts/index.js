@@ -22,6 +22,7 @@ import hexWithAlphaToRGB from './tools/hexWithAlphaToRGB';
 import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
+import secondsToHHMMSS from './tools/secondsToHHMMSS';
 import tableTemplate from './templates/tableTemplate';
 
 // Globals
@@ -163,8 +164,11 @@ let maxTime;
 let currentTime = 0;
 let intervalId;
 
-let $timeSlider;
+let $player;
 let $playerButton;
+let $playerSlider;
+let $playerPenaltyCut;
+let $playerTime;
 let $mapCheckboxesContainer;
 let $map;
 let $mapBackgroundImage;
@@ -473,16 +477,18 @@ const DOMContentLoaded = () => {
       maxTime = Math.max(...selectedRaceTeams.map(srt => srt.time));
       currentTime = 0;
 
-      $timeSlider.noUiSlider.updateOptions({
+      $playerSlider.noUiSlider.updateOptions({
         range: {
           min: 0,
           max: maxTime,
         },
       });
 
-      $timeSlider.noUiSlider.set(currentTime);
+      $playerSlider.noUiSlider.set(currentTime);
+      $playerPenaltyCut.style.width = `${((maxTime - (4 * 60 * 60)) * 100) / maxTime}%`;
+      $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
-      $playerButton.classList.remove('dl-feature__player-button--stop');
+      $playerButton.classList.remove('dl-feature-player__button--stop');
       clearInterval(intervalId);
 
       updateCheckpoints();
@@ -501,8 +507,6 @@ const DOMContentLoaded = () => {
   });
 
   // Checkboxes
-  document.querySelector('.dl-checkboxes-and-logo').style.marginTop = `${margin.top}px`;
-
   const $checkboxes = document.querySelectorAll('.dl-checkboxes-and-logo input');
 
   $checkboxes.forEach(($c, i) => {
@@ -548,10 +552,13 @@ const DOMContentLoaded = () => {
     maxTime = Math.max(...selectedRaceTeams.map(srt => srt.time));
 
     // Create time slider
-    $timeSlider = document.querySelector('.dl-feature__time-slider');
+    $player = document.querySelector('.dl-feature-player');
+    $playerSlider = document.querySelector('.dl-feature-player__slider');
+    $playerPenaltyCut = document.querySelector('.dl-feature-player__penalty-cut');
+    $playerTime = document.querySelector('.dl-feature-player__time');
 
     nouislider
-      .create($timeSlider, {
+      .create($playerSlider, {
         start: 0,
         connect: [
           true,
@@ -564,47 +571,51 @@ const DOMContentLoaded = () => {
         step: 60,
         pips: {
           mode: 'steps',
-          filter: value => (!(value % 3600) && value ? 1 : 0),
+          filter: value => (value % 3600 ? 0 : 1),
           format: {
             to: value => value / 3600,
           },
         },
       });
 
-    $timeSlider.noUiSlider.on('slide', (values, handle) => {
+    $playerSlider.noUiSlider.on('slide', (values, handle) => {
       currentTime = +values[handle];
+
+      $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
       setParticipantsCoordinates();
       placeParticipantMarksOnMap();
     });
 
+    $playerPenaltyCut.style.width = `${((maxTime - (4 * 60 * 60)) * 100) / maxTime}%`;
+    $playerTime.innerHTML = secondsToHHMMSS(currentTime);
+
     // Player
-    $playerButton = document.querySelector('.dl-feature__player-button');
+    $playerButton = document.querySelector('.dl-feature-player__button');
 
     $playerButton.addEventListener('click', () => {
-      if ($playerButton.classList.contains('dl-feature__player-button--stop')) {
-        $playerButton.classList.remove('dl-feature__player-button--stop');
+      if ($playerButton.classList.contains('dl-feature-player__button--stop')) {
+        $playerButton.classList.remove('dl-feature-player__button--stop');
         clearInterval(intervalId);
       } else {
-        $playerButton.classList.add('dl-feature__player-button--stop');
+        $playerButton.classList.add('dl-feature-player__button--stop');
 
         intervalId = setInterval(() => {
-          if (currentTime === maxTime) {
+          if (currentTime >= maxTime) {
             currentTime = 0;
 
-            $timeSlider.noUiSlider.set(currentTime);
-
-            $playerButton.classList.remove('dl-feature__player-button--stop');
+            $playerButton.classList.remove('dl-feature-player__button--stop');
             clearInterval(intervalId);
           } else {
-            currentTime += 1;
-
-            $timeSlider.noUiSlider.set(currentTime);
+            currentTime += 60;
 
             setParticipantsCoordinates();
             placeParticipantMarksOnMap();
           }
-        }, 1);
+
+          $playerSlider.noUiSlider.set(currentTime);
+          $playerTime.innerHTML = secondsToHHMMSS(currentTime);
+        }, 100);
       }
     });
 
@@ -653,7 +664,7 @@ const DOMContentLoaded = () => {
     const width = height * ratio;
 
     $map.style.width = `${width}px`;
-    $timeSlider.style.width = `${width}px`;
+    $player.style.width = `${width}px`;
 
     scales.x
       .domain([xMin, xMax])
