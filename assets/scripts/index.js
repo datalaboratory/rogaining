@@ -485,7 +485,7 @@ const DOMContentLoaded = () => {
       });
 
       $playerSlider.noUiSlider.set(currentTime);
-      $playerPenaltyCut.style.width = `${((maxTime - (4 * 60 * 60)) * 100) / maxTime}%`;
+      $playerPenaltyCut.style.width = `${((maxTime - 14400) * 100) / maxTime}%`;
       $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
       $playerButton.classList.remove('dl-feature-player__button--stop');
@@ -587,7 +587,7 @@ const DOMContentLoaded = () => {
       placeParticipantMarksOnMap();
     });
 
-    $playerPenaltyCut.style.width = `${((maxTime - (4 * 60 * 60)) * 100) / maxTime}%`;
+    $playerPenaltyCut.style.width = `${((maxTime - 14400) * 100) / maxTime}%`;
     $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
     // Player

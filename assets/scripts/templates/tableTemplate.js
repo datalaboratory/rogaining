@@ -20,7 +20,7 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
 
             return {
               color: cpColorScale(ucp[0]),
-              height: (100 * ucpParticipants.length) / srt.participants.length,
+              height: (ucpParticipants.length * 100) / srt.participants.length,
               fromStart: Math.max(...ucpParticipants.map(p => p.checkpoints[j].fromStart)),
             };
           })
@@ -36,7 +36,7 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
             return `
               <div
                 class="dl-table__checkpoint-part"
-                style="top: calc(${top} - 2px); left: ${(100 * cpd.fromStart) / maxTime}%; height: calc(${cpd.height}% + 4px);">
+                style="top: calc(${top} - 2px); left: ${(cpd.fromStart * 100) / maxTime}%; height: calc(${cpd.height}% + 4px);">
                 <div
                   class="dl-table__checkpoint-part-mark"
                   style="background-color: ${cpd.color};">
@@ -69,7 +69,12 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
             style="height: ${checkpointsHeight}px">
             <div
               class="dl-table__checkpoints-background"
-              style="width: ${(100 * srt.time) / maxTime}%;"></div>
+              style="width: ${((srt.time > 14400 ? 14400 : srt.time) * 100) / maxTime}%;"></div>
+            ${srt.time > 14400 ? `
+              <div
+                class="dl-table__penalty-cut"
+                style="left: ${(14400 * 100) / maxTime}%; width: ${((srt.time - 14400) * 100) / maxTime}%;"></div>
+              ` : ''}
             ${checkpoints.join('')}
           </div>
         </div>
