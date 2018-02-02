@@ -324,7 +324,10 @@ const toggleTeamParticipantMarks = (isRowSelected, team) => {
   }
 
   teamParticipantCaptions
-    .attr('class', (d, i) => (isRowSelected && i === 0
+    .attr('class', (d, i) => (isRowSelected && (i === 0 || selectedRaceParticipants
+      .filter(p => p.teamName === d.teamName && !(p.name === d.name && p.surname === d.surname))
+      .every(p => Math.abs(p.x - d.x) > 20 || Math.abs(p.y - d.y) > 20)
+    )
       ? 'dl-map__participant-caption'
       : 'dl-map__participant-caption--hidden'
     ));
@@ -352,13 +355,11 @@ const initParicipantMarks = () => {
         const team = selectedRaceTeams[i];
 
         if (team.name !== d.teamName) return;
-
-        d3participantCaptions
-          .filter(({ teamName }) => teamName === team.name)
-          .attr('class', (d, i) => (i === 0
-            ? 'dl-map__participant-caption'
-            : 'dl-map__participant-caption--hidden'
-          ));
+        if (!$tr.classList.contains('dl-table__row--selected')) {
+          d3participantCaptions
+            .filter(({ name, surname }) => d.name === name && d.surname === surname)
+            .attr('class', 'dl-map__participant-caption');
+        }
         selectTableRow($tr, team);
       });
     })
@@ -401,7 +402,6 @@ const initParicipantMarks = () => {
     .append('span')
     .attr('class', 'dl-map__participant-caption--hidden')
     .text(d => d.teamName)
-    .style('border-color', d => scales.teamColor(d.teamName))
     .style('color', d => scales.teamColor(d.teamName));
 };
 
@@ -439,7 +439,7 @@ const placeParticipantMarksOnMap = () => {
 
   d3participantCaptions
     .style('left', d => `${scales.x(d.x) + margin.left + 7}px`)
-    .style('top', d => `${scales.y(d.y) + margin.top - 5}px`);
+    .style('top', d => `${scales.y(d.y) + margin.top}px`);
 };
 
 // Add event listeners to table rows
