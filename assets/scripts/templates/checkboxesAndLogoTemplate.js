@@ -1,7 +1,7 @@
-const checkboxesTemplate = (checkboxes) => {
+const checkboxesAndLogoTemplate = (checkboxes) => {
   const checkboxContainers = checkboxes
     .map(c => `
-      <div class="dl-checkboxes__checkbox-container">
+      <div class="dl-checkboxes-and-logo__checkbox-container">
         <input
           type="checkbox"
           id="${c.id}"
@@ -13,10 +13,10 @@ const checkboxesTemplate = (checkboxes) => {
     .join('');
 
   return `
-    <div class="dl-checkboxes">
+    <div class="dl-checkboxes-and-logo">
       ${checkboxContainers}
-      <div class="dl-checkboxes__checkbox-container-logo">
-        <img src="img/dl-logo.png"/>
+      <div class="dl-checkboxes-and-logo__logo">
+        <img src="img/logo.png" />
         Визуализация
         <br/>
         <a href="https://datalaboratory.ru/">Лаборатории данных</a>
@@ -25,4 +25,4 @@ const checkboxesTemplate = (checkboxes) => {
   `;
 };
 
-export default checkboxesTemplate;
+export default checkboxesAndLogoTemplate;

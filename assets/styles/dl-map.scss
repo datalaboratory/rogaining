@@ -39,10 +39,10 @@
   }
 
   &__participant-mark {
+    cursor: pointer;
+
     stroke: #fff;
     fill: #999;
-
-    cursor: pointer;
   }
 
   &__participant-caption {

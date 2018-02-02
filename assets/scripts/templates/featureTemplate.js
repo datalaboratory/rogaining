@@ -1,5 +1,6 @@
-import checkboxesTemplate from './checkboxesTemplate';
+import checkboxesAndLogoTemplate from './checkboxesAndLogoTemplate';
 import mapTemplate from './mapTemplate';
+import playerTemplate from './playerTemplate';
 import raceSelectTemplate from './raceSelectTemplate';
 
 const featureTemplate = (races, selectedRace, checkboxes) =>
@@ -9,16 +10,11 @@ const featureTemplate = (races, selectedRace, checkboxes) =>
         <div class="dl-feature__header-caption">Финал кубка «Золотой маршрут» 2017</div>
         ${raceSelectTemplate(races, selectedRace)}
       </div>
-      <div class="dl-feature__map-checkboxes-container">
+      <div class="dl-feature__map-checkboxes-and-logo-container">
         ${mapTemplate()}
-        ${checkboxesTemplate(checkboxes)}
+        ${checkboxesAndLogoTemplate(checkboxes)}
       </div>
-      <div class="dl-feature__time-slider-and-player-button">
-        <div class="dl-feature__time-slider">
-          <div class="dl-feature__time-slider-legend">часы:</div>
-        </div>
-        <div class="dl-feature__player-button"></div>
-      </div>
+      ${playerTemplate()}
       <div class="dl-feature__table-container"></div>
     </div>
   `;

@@ -112,6 +112,15 @@
     background-color: rgba(0, 0, 0, 0.083);
   }
 
+  &__penalty-cut {
+    position: absolute;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.083);
+  }
+
   &__checkpoint-part {
     position: absolute;
 

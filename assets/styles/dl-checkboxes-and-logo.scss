@@ -1,9 +1,10 @@
 @import 'variables';
 
-.dl-checkboxes {
-  margin-left: 20px;
+.dl-checkboxes-and-logo {
   display: flex;
   flex-direction: column;
+
+  margin-left: 20px;
 
   &__checkbox-container {
     font-family: $sans-serif;
@@ -23,31 +24,31 @@
     & label {
       cursor: pointer;
       user-select: none;
+      vertical-align: middle;
 
       font-size: 14px;
     }
+  }
 
-    &-logo {
-      margin-top: auto;
+  &__logo {
+    display: flex;
+    flex-direction: column;
 
-      display: flex;
-      flex-direction: column;
+    margin-top: auto;
 
-      font-family: $sans-serif;
-      font-size: 14px;
+    font-family: $sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
 
-      line-height: 1.6;
+    & img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
 
-      & img {
-        width: 55px;
-        height: auto;
-        margin-bottom: 10px;
-      }
+    & a {
+      letter-spacing: 0.2px;
 
-      & a {
-        letter-spacing: 0.2px;
-        color: black;
-      }
+      color: black;
     }
   }
 }
