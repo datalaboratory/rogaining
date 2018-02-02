@@ -317,6 +317,13 @@ const toggleTeamParticipantMarks = (isRowSelected, team) => {
     parent.appendChild(selection[j]);
   });
 
+  teamParticipantCaptions.each((d, j, selection) => {
+    const parent = selection[j].parentNode;
+
+    parent.removeChild(selection[j]);
+    parent.appendChild(selection[j]);
+  });
+
   if (isRowSelected) {
     shownTeams.push(team);
   } else {
@@ -324,10 +331,7 @@ const toggleTeamParticipantMarks = (isRowSelected, team) => {
   }
 
   teamParticipantCaptions
-    .attr('class', (d, i) => (isRowSelected && (i === 0 || selectedRaceParticipants
-      .filter(p => p.teamName === d.teamName && !(p.name === d.name && p.surname === d.surname))
-      .every(p => Math.abs(p.x - d.x) > 20 || Math.abs(p.y - d.y) > 20)
-    )
+    .attr('class', (d, i) => (isRowSelected && i === 0
       ? 'dl-map__participant-caption'
       : 'dl-map__participant-caption--hidden'
     ));
@@ -358,8 +362,15 @@ const initParicipantMarks = () => {
         if (!$tr.classList.contains('dl-table__row--selected')) {
           d3participantCaptions
             .filter(({ name, surname }) => d.name === name && d.surname === surname)
-            .attr('class', 'dl-map__participant-caption');
+            .attr('class', 'dl-map__participant-caption')
+            .each((d, j, selection) => {
+              const parent = selection[j].parentNode;
+
+              parent.removeChild(selection[j]);
+              parent.appendChild(selection[j]);
+            })
         }
+
         selectTableRow($tr, team);
       });
     })
