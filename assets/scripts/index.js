@@ -403,6 +403,10 @@ const initParicipantMarks = () => {
     .attr('class', 'dl-map__participant-caption--hidden')
     .text(d => d.teamName)
     .style('color', d => scales.teamColor(d.teamName));
+
+  d3participantCaptions
+    .append('div').attr('class', 'dl-map__participant-caption-corner-container')
+    .append('div').attr('class', 'dl-map__participant-caption-corner');
 };
 
 // Set participants coordinates
@@ -438,8 +442,8 @@ const placeParticipantMarksOnMap = () => {
     .attr('cy', d => scales.y(d.y));
 
   d3participantCaptions
-    .style('left', d => `${scales.x(d.x) + margin.left + 7}px`)
-    .style('top', d => `${scales.y(d.y) + margin.top}px`);
+    .style('left', d => `${scales.x(d.x) + margin.left + 13}px`)
+    .style('top', d => `${scales.y(d.y) + margin.top - 13}px`);
 };
 
 // Add event listeners to table rows

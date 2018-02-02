@@ -60,4 +60,28 @@
       opacity: 0;
     }
   }
+
+  &__participant-caption-corner-container {
+    position: absolute;
+
+    width: 20px;
+    height: 100%;
+    top: 0;
+    left: -20px;
+
+    overflow: hidden;
+  }
+
+  &__participant-caption-corner {
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+    top: calc(50% - 5px);
+    right: -5px;
+
+    background: rgba(255, 255, 255, 0.7);
+
+    transform: rotate(45deg);
+  }
 }
