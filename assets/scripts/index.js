@@ -150,7 +150,8 @@ const checkboxes = [
 ];
 
 const pathPieceLineStrokeWidth = 2;
-const defaultCheckpointRadius = 10;
+const linkStrokeWidth = 1;
+const defaultCheckpointRadius = 3;
 
 let coordinates;
 let links;
@@ -181,6 +182,9 @@ let d3links;
 let d3participantPathsGroup;
 let d3participantMarksGroup;
 let d3participantMarks;
+
+let d3participantCaptionsContainer;
+let d3participantCaptions;
 
 // Update checkpoints
 const updateCheckpoints = () => {
@@ -227,7 +231,7 @@ const updateLinks = () => {
   const isPathPopularityChecked = document.getElementById('dl-show-paths-popularity').checked;
   d3links.style('stroke-width', d => (isPathPopularityChecked || !d.popularity
     ? scales.linkWidth(d.popularity)
-    : pathPieceLineStrokeWidth));
+    : linkStrokeWidth));
 };
 
 // Draw participant paths
@@ -295,6 +299,7 @@ const unselectTableRow = ($tr) => {
 
 const toggleTeamParticipantMarks = (isRowSelected, team) => {
   const teamParticipantMarks = d3participantMarks.filter(d => d.teamName === team.name);
+  const teamParticipantCaptions = d3participantCaptions.filter(d => d.teamName === team.name);
 
   teamParticipantMarks
     .attr('r', isRowSelected ? 5 : 3)
@@ -312,6 +317,12 @@ const toggleTeamParticipantMarks = (isRowSelected, team) => {
   } else {
     shownTeams.splice(shownTeams.findIndex(st => st.name === team.name), 1);
   }
+
+  teamParticipantCaptions
+    .attr('class', (d, i) => (isRowSelected && i === 0
+      ? 'dl-map__participant-caption'
+      : 'dl-map__participant-caption--hidden'
+    ));
 
   drawParticipantPaths();
 };
@@ -337,6 +348,12 @@ const initParicipantMarks = () => {
         if (team.name !== d.teamName) {
           return;
         }
+        d3participantCaptions
+          .filter(({ teamName }) => teamName === team.name)
+          .attr('class', (d, i) => (i === 0
+            ? 'dl-map__participant-caption'
+            : 'dl-map__participant-caption--hidden'
+          ));
         selectTableRow($tr, team);
       });
     })
@@ -349,6 +366,9 @@ const initParicipantMarks = () => {
         const isRowSelected = $tr.classList.contains('dl-table__row--selected');
         if (!isRowSelected) {
           unselectTableRow($tr);
+          d3participantCaptions
+            .filter(({ teamName }) => teamName === team.name)
+            .attr('class', 'dl-map__participant-caption--hidden');
         }
       });
     })
@@ -371,6 +391,20 @@ const initParicipantMarks = () => {
         toggleTeamParticipantMarks(isRowSelected, team);
       });
     });
+
+  d3participantCaptionsContainer
+    .selectAll('*')
+    .remove();
+
+  d3participantCaptions = d3participantCaptionsContainer
+    .selectAll('span')
+    .data(selectedRaceParticipants)
+    .enter()
+    .append('span')
+    .attr('class', 'dl-map__participant-caption--hidden')
+    .text(d => d.teamName)
+    .style('border-color', d => scales.teamColor(d.teamName))
+    .style('color', d => scales.teamColor(d.teamName));
 };
 
 // Set participants coordinates
@@ -404,6 +438,10 @@ const placeParticipantMarksOnMap = () => {
   d3participantMarks
     .attr('cx', d => scales.x(d.x))
     .attr('cy', d => scales.y(d.y));
+
+  d3participantCaptions
+    .style('left', d => `${scales.x(d.x) + margin.left + 7}px`)
+    .style('top', d => `${scales.y(d.y) + margin.top - 5}px`);
 };
 
 // Add event listeners to table rows
@@ -527,7 +565,7 @@ const DOMContentLoaded = () => {
       } else if (checkboxes[i].id === 'dl-show-paths-popularity') {
         d3links.style('stroke-width', d => ($c.checked || !d.popularity
           ? scales.linkWidth(d.popularity)
-          : pathPieceLineStrokeWidth));
+          : linkStrokeWidth));
       }
     });
   });
@@ -732,6 +770,8 @@ const DOMContentLoaded = () => {
     d3participantMarksGroup = d3rootGroup
       .append('g')
       .attr('class', 'dl-map__participant-marks');
+
+    d3participantCaptionsContainer = d3select('.dl-map__participant-captions');
 
     updateCheckpoints();
     updateLinks();

@@ -20,7 +20,8 @@
   }
 
   &__link {
-    stroke: #999;
+    stroke: #aaa;
+    stroke-linecap: round;
   }
 
   &__checkpoint-caption {
@@ -42,5 +43,24 @@
     fill: #999;
 
     cursor: pointer;
+  }
+
+  &__participant-caption {
+    position: absolute;
+
+    padding: 4px;
+
+    font-family: $sans-serif;
+
+    background: rgba(255, 255, 255, 0.7);
+
+    border-radius: 3px;
+    border: 1px solid;
+
+    pointer-events: none;
+
+    &--hidden {
+      opacity: 0;
+    }
   }
 }
