@@ -12,39 +12,25 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
       const checkpoints = [];
 
       for (let j = 1; j < nOfCheckpoints - 1; j += 1) {
-        const uniqCheckpoints = uniq(srt.participants.map(p => p.checkpoints[j].name)).filter(Boolean);
+        const ucpParticipants = srt.participants;
+        const ucp = srt.participants[0].checkpoints[j];
 
-        const checkpointPartsData = uniqCheckpoints
-          .map((ucp) => {
-            const ucpParticipants = srt.participants.filter(p => p.checkpoints[j].name === ucp);
+        const cpd = {
+          color: cpColorScale(ucp.name[0]),
+          height: (ucpParticipants.length * 100) / srt.participants.length,
+          fromStart: Math.max(...ucpParticipants.map(p => p.checkpoints[j].fromStart)),
+        };
 
-            return {
-              color: cpColorScale(ucp[0]),
-              height: (ucpParticipants.length * 100) / srt.participants.length,
-              fromStart: Math.max(...ucpParticipants.map(p => p.checkpoints[j].fromStart)),
-            };
-          })
-          .sort((a, b) => a.fromStart - b.fromStart);
-
-        let y = 0;
-
-        const checkpointParts = checkpointPartsData
-          .map((cpd) => {
-            const top = `${y}%`;
-            y += cpd.height;
-
-            return `
+        const checkpointParts = `
               <div
                 class="dl-table__checkpoint-part"
-                style="top: calc(${top} - 2px); left: ${(cpd.fromStart * 100) / maxTime}%; height: calc(${cpd.height}% + 4px);">
+                style="top: -2px; left: ${(cpd.fromStart * 100) / maxTime}%; height: calc(100% + 4px);">
                 <div
                   class="dl-table__checkpoint-part-mark"
                   style="background-color: ${cpd.color};">
                 </div>
               </div>
             `;
-          })
-          .join('');
 
         checkpoints.push(`
           <div class="dl-table__checkpoint">
@@ -94,6 +80,7 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
       <div class="dl-table__body">
         ${tableRows}
       </div>
+      <div class="dl-table__tooltip-container"></div>
     </div>
   `;
 };

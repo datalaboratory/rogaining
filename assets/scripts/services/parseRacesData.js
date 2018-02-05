@@ -112,6 +112,13 @@ const parseRacesData = (rawData, races) =>
         time: Math.max(...participantsGroupedByTeamName[key].map(p => p.time)),
         participants: participantsGroupedByTeamName[key],
       }))
+      .filter((team) => {
+        const res = !team.participants[0].checkpoints
+          .some(({ name }, cpNumber) => team.participants
+            .some(p => p.checkpoints[cpNumber].name !== name));
+        if (!res) console.log(`team ${team.name} removed`);
+        return res;
+      })
       .sort((a, b) => {
         if (a.points > b.points) return -1;
         if (a.points < b.points) return 1;

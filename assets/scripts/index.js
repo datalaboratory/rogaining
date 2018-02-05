@@ -24,6 +24,7 @@ import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
 import secondsToHHMMSS from './tools/secondsToHHMMSS';
 import tableTemplate from './templates/tableTemplate';
+import tableCheckpointTooltipTemplate from './templates/tableCheckpointTooltipTemplate';
 
 // Globals
 const races = [
@@ -176,6 +177,7 @@ let $mapBackgroundImage;
 let $tableContainer;
 let $tableHeader;
 let $tableBody;
+let $tableCheckpointTooltip;
 
 let tableHeaderOffsetTop;
 
@@ -368,7 +370,7 @@ const initParicipantMarks = () => {
 
               parent.removeChild(selection[j]);
               parent.appendChild(selection[j]);
-            })
+            });
         }
 
         selectTableRow($tr, team);
@@ -476,6 +478,31 @@ const addTableRowsEventListeners = () => {
       const isRowSelected = $tr.classList.contains('dl-table__row--selected');
 
       toggleTeamParticipantMarks(isRowSelected, team);
+    });
+  });
+};
+
+const addTableMarksEventListeners = () => {
+  document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
+    $tr.querySelectorAll('.dl-table__checkpoint').forEach(($markGroup, j) => {
+      const team = selectedRaceTeams[i];
+      const checkpoint = team.participants[0].checkpoints[j + 1];
+      const timeFromStart = Math.max(...team.participants.map(p => p.checkpoints[j + 1].fromStart));
+      const previuosTimeFromStart = Math.max(...team.participants.map(p => p.checkpoints[j].fromStart));
+
+      $markGroup.addEventListener('mousemove', (e) => {
+        $tableCheckpointTooltip.innerHTML = tableCheckpointTooltipTemplate({
+          color: scales.cpColor(checkpoint.name[0]),
+          name: checkpoint.name,
+          timeFromStart,
+          timeFromPrevious: timeFromStart - previuosTimeFromStart,
+        });
+        $tableCheckpointTooltip.style.top = `${e.pageY + 10}px`;
+        $tableCheckpointTooltip.style.left = `${e.pageX + 10}px`;
+      });
+      $markGroup.addEventListener('mouseleave', () => {
+        $tableCheckpointTooltip.innerHTML = '';
+      });
     });
   });
 };
@@ -800,7 +827,9 @@ const DOMContentLoaded = () => {
     $tableBody = document.querySelector('.dl-table__body');
     tableHeaderOffsetTop = $tableHeader.offsetTop;
 
+    $tableCheckpointTooltip = document.querySelector('.dl-table__tooltip-container');
     addTableRowsEventListeners();
+    addTableMarksEventListeners();
   });
 };
 
