@@ -743,11 +743,12 @@ const DOMContentLoaded = () => {
     const yMax = (pixels.start.top + (startCP.y / mPerPx)) * mPerPx;
     const ratio = (xMax - xMin) / (yMax - yMin);
     const { height } = $mapCheckboxesContainer.getBoundingClientRect();
-    const width = height * ratio;
+    const width = (height * ratio) + margin.left + margin.right;
 
     $map.style.width = `${width}px`;
     $player.style.width = `${width}px`;
-
+    $mapCheckboxesContainer.style.visibility = 'visible';
+    $player.style.visibility = 'visible';
     scales.x
       .domain([xMin, xMax])
       .range([0, width - margin.left - margin.right]);
