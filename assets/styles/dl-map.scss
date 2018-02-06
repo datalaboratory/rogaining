@@ -2,11 +2,14 @@
 
 .dl-map {
   position: relative;
-
   height: 100%;
+  width: calc(600 * 1.417px);
+  flex-shrink: 0;
 
   &__background-image {
     position: absolute;
+    width: calc(100% - 10px);
+    height: 100%;
     z-index: -1;
 
     opacity: 0.2;

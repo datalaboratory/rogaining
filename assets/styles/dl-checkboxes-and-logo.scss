@@ -5,6 +5,7 @@
   flex-direction: column;
 
   margin-left: 20px;
+  margin-top: 8px;
 
   &__checkbox-container {
     font-family: $sans-serif;
@@ -24,7 +25,6 @@
     & label {
       cursor: pointer;
       user-select: none;
-      vertical-align: middle;
 
       font-size: 14px;
     }
@@ -35,14 +35,15 @@
     flex-direction: column;
 
     margin-top: auto;
+    margin-left: 30px;
 
     font-family: $sans-serif;
     font-size: 14px;
     line-height: 1.6;
 
     & img {
-      width: 70px;
-      margin-bottom: 10px;
+      width: 54px;
+      margin-bottom: 12px;
     }
 
     & a {
