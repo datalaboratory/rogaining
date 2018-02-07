@@ -23,8 +23,8 @@ import lastOf from './tools/lastOf';
 import parseCoordinatesData from './services/parseCoordinatesData';
 import parseRacesData from './services/parseRacesData';
 import secondsToHHMMSS from './tools/secondsToHHMMSS';
-import tableTemplate from './templates/tableTemplate';
 import tableCheckpointTooltipTemplate from './templates/tableCheckpointTooltipTemplate';
+import tableTemplate from './templates/tableTemplate';
 
 // Globals
 const races = [
@@ -361,11 +361,12 @@ const initParicipantMarks = () => {
         const team = selectedRaceTeams[i];
 
         if (team.name !== d.teamName) return;
+
         if (!$tr.classList.contains('dl-table__row--selected')) {
           d3participantCaptions
             .filter(({ name, surname }) => d.name === name && d.surname === surname)
             .attr('class', 'dl-map__participant-caption')
-            .each((d, j, selection) => {
+            .each((b, j, selection) => {
               const parent = selection[j].parentNode;
 
               parent.removeChild(selection[j]);
@@ -379,8 +380,10 @@ const initParicipantMarks = () => {
     .on('mouseleave', (d) => {
       document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
         if (selectedRaceTeams[i].name !== d.teamName) return;
+
         if (!$tr.classList.contains('dl-table__row--selected')) {
           unselectTableRow($tr);
+
           d3participantCaptions
             .filter(({ teamName }) => teamName === selectedRaceTeams[i].name)
             .attr('class', 'dl-map__participant-caption--hidden');
@@ -456,7 +459,7 @@ const placeParticipantMarksOnMap = () => {
 
   d3participantCaptions
     .style('left', d => `${scales.x(d.x) + margin.left + 13}px`)
-    .style('top', d => `${scales.y(d.y) + margin.top - 13}px`);
+    .style('top', d => `${(scales.y(d.y) + margin.top) - 13}px`);
 };
 
 // Add event listeners to table rows
@@ -497,9 +500,11 @@ const addTableMarksEventListeners = () => {
           timeFromStart,
           timeFromPrevious: timeFromStart - previuosTimeFromStart,
         });
+
         $tableCheckpointTooltip.style.top = `${e.pageY + 10}px`;
         $tableCheckpointTooltip.style.left = `${e.pageX + 10}px`;
       });
+
       $markGroup.addEventListener('mouseleave', () => {
         $tableCheckpointTooltip.innerHTML = '';
       });

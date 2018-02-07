@@ -158,14 +158,14 @@
   }
 
   &__tooltip {
+    padding: 0 4px;
+
+    border: 1px solid #ccc;
+    background: #fff;
+
     font-family: $sans-serif;
     font-size: 14px;
     line-height: 1.4;
-
-    padding: 0 4px;
-
-    background: #fff;
-    border: 1px solid #ccc;
   }
 
   &__tooltip-name {
@@ -173,8 +173,10 @@
   }
 
   &__tooltip-points {
-    border-radius: 10px;
     padding: 2px;
+
+    border-radius: 10px;
+
     font-size: 11px;
   }
 }
