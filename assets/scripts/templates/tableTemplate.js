@@ -1,5 +1,3 @@
-import uniq from 'lodash.uniq';
-
 import secondsToHHMMSS from '../tools/secondsToHHMMSS';
 
 const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {

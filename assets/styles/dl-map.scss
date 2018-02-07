@@ -2,15 +2,18 @@
 
 .dl-map {
   position: relative;
-  height: 100%;
-  /*width: calc(600 * 1.417px);*/
+
   flex-shrink: 0;
+
+  width: calc(600 * 1.417px);
+  height: 100%;
 
   &__background-image {
     position: absolute;
+    z-index: -1;
+
     width: calc(100% - 10px);
     height: 100%;
-    z-index: -1;
 
     opacity: 0.2;
     background-image: url('../img/Финал2017-75.jpg');
@@ -53,11 +56,11 @@
 
     padding: 4px;
 
-    font-family: $sans-serif;
+    pointer-events: none;
 
     background: rgba(255, 255, 255, 0.7);
 
-    pointer-events: none;
+    font-family: $sans-serif;
 
     &--hidden {
       opacity: 0;
@@ -66,25 +69,25 @@
 
   &__participant-caption-corner-container {
     position: absolute;
-
-    width: 20px;
-    height: 100%;
     top: 0;
     left: -20px;
 
     overflow: hidden;
+
+    width: 20px;
+    height: 100%;
   }
 
   &__participant-caption-corner {
     position: absolute;
-
-    width: 10px;
-    height: 10px;
     top: calc(50% - 5px);
     right: -5px;
 
-    background: rgba(255, 255, 255, 0.7);
+    width: 10px;
+    height: 10px;
 
     transform: rotate(45deg);
+
+    background: rgba(255, 255, 255, 0.7);
   }
 }

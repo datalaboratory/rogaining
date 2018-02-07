@@ -23,8 +23,7 @@ const raceSelectTemplate = (races, selectedRace) => {
   return `
     <div
       class="dl-race-select"
-      tabindex="0"
-    >
+      tabindex="0">
       <div class="dl-race-select__toggle">${selectedRace}</div>
       <div class="dl-race-select__dropdown">
         ${options}

@@ -114,9 +114,10 @@ const parseRacesData = (rawData, races) =>
       }))
       .filter((team) => {
         const res = !team.participants[0].checkpoints
-          .some(({ name }, cpNumber) => team.participants
-            .some(p => p.checkpoints[cpNumber].name !== name));
+          .some(({ name }, cpNumber) => team.participants.some(p => p.checkpoints[cpNumber].name !== name));
+
         if (!res) console.log(`team ${team.name} removed`);
+
         return res;
       })
       .sort((a, b) => {
