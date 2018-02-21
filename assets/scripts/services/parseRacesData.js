@@ -5,7 +5,7 @@ import HHMMSSToSeconds from '../tools/HHMMSSToSeconds';
 import lastOf from '../tools/lastOf';
 
 // Apply protocol adjustment
-const applyProtocolAdjustment = (participant, protocol) => {
+const applyProtocolAdjustment = (participant, protocol, raceTime) => {
   const participantData = {
     points: 0,
     time: HHMMSSToSeconds(participant['Результат']),
@@ -68,7 +68,7 @@ const applyProtocolAdjustment = (participant, protocol) => {
       .map(cp => +(cp.name.indexOf('-') === -1 ? cp.name[0] : cp.name.split('-')[1]) || 0)
       .reduce((a, b) => a + b, 0);
 
-    const penalty = Math.ceil((participantData.time - 14400) / 60);
+    const penalty = Math.ceil((participantData.time - raceTime) / 60);
 
     if (penalty > 30 || participantData.points - penalty < 0) {
       participantData.points = 0;
@@ -92,7 +92,7 @@ const parseRacesData = (rawData, races) =>
           surname: capitalizeFirstLetter(rd['Фамилия'].toLowerCase()),
           yearOfBirth: rd['Г.р.'],
         },
-        applyProtocolAdjustment(rd, lastOf(rawData)),
+        applyProtocolAdjustment(rd, lastOf(rawData), r.time),
       ))
       .sort((a, b) => {
         if (a.surname < b.surname) return -1;
@@ -132,6 +132,7 @@ const parseRacesData = (rawData, races) =>
     return {
       id: r.id,
       teams,
+      time: r.time,
     };
   });
 

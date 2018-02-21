@@ -1,6 +1,6 @@
 import secondsToHHMMSS from '../tools/secondsToHHMMSS';
 
-const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
+const tableTemplate = (selectedRaceTeams, selectedRaceTime, maxTime, cpColorScale) => {
   const maxRowHeight = 36;
   const checkpointsHeight = 20;
 
@@ -53,11 +53,11 @@ const tableTemplate = (selectedRaceTeams, maxTime, cpColorScale) => {
             style="height: ${checkpointsHeight}px">
             <div
               class="dl-table__checkpoints-background"
-              style="width: ${((srt.time > 14400 ? 14400 : srt.time) * 100) / maxTime}%;"></div>
-            ${srt.time > 14400 ? `
+              style="width: ${((srt.time > selectedRaceTime ? selectedRaceTime : srt.time) * 100) / maxTime}%;"></div>
+            ${srt.time > selectedRaceTime ? `
               <div
                 class="dl-table__penalty-cut"
-                style="left: ${(14400 * 100) / maxTime}%; width: ${((srt.time - 14400) * 100) / maxTime}%;"></div>
+                style="left: ${(selectedRaceTime * 100) / maxTime}%; width: ${((srt.time - selectedRaceTime) * 100) / maxTime}%;"></div>
               ` : ''}
             ${checkpoints.join('')}
           </div>

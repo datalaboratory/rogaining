@@ -33,96 +33,112 @@ const races = [
     group: 'Мужчины',
     title: '4 часа бегом',
     id: 'М 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - М4Б_Ю.csv',
     group: 'Мужчины',
     title: '4 часа бегом (юниоры)',
     id: 'М (ю) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - М4Б_В.csv',
     group: 'Мужчины',
     title: '4 часа бегом (ветераны)',
     id: 'М (в) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - М4Б_СВ.csv',
     group: 'Мужчины',
     title: '4 часа бегом (суперветераны)',
     id: 'М (св) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - М4В.csv',
     group: 'Мужчины',
     title: '4 часа на велосипеде',
     id: 'М 4 (вело)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv',
     group: 'Мужчины',
     title: '4 часа на велосипеде (ветераны)',
     id: 'М (в) 4 (вело)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv',
     group: 'Женщины',
     title: '4 часа бегом',
     id: 'Ж 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv',
     group: 'Женщины',
     title: '4 часа бегом (юниоры)',
     id: 'Ж (ю) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv',
     group: 'Женщины',
     title: '4 часа бегом (ветераны)',
     id: 'Ж (в) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv',
     group: 'Женщины',
     title: '4 часа бегом (суперветераны)',
     id: 'Ж (св) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv',
     group: 'Женщины',
     title: '4 часа на велосипеде',
     id: 'Ж 4 (вело)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv',
     group: 'Женщины',
     title: '4 часа на велосипеде (ветераны)',
     id: 'Ж (в) 4 (вело)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv',
     group: 'Мужчины и женщины',
     title: '4 часа бегом',
     id: 'М+Ж 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv',
     group: 'Мужчины и женщины',
     title: '4 часа бегом (юниоры)',
     id: 'М+Ж (ю) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv',
     group: 'Мужчины и женщины',
     title: '4 часа бегом (ветераны)',
     id: 'М+Ж (в) 4 (бег)',
+    time: 14400,
   },
   {
     fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv',
     group: 'Мужчины и женщины',
     title: '4 часа на велосипеде',
     id: 'М+Ж 4 (вело)',
+    time: 14400,
   },
 ];
 
@@ -547,6 +563,7 @@ const DOMContentLoaded = () => {
   $raceSelectOptions.forEach(($o1, i) => {
     $o1.addEventListener('click', () => {
       selectedRace = races[i].id;
+      const selectedRaceTime = races[i].time;
 
       $raceSelectOptions.forEach(($o2) => {
         if ($o2.classList.contains('dl-race-select__option--selected')) {
@@ -572,7 +589,7 @@ const DOMContentLoaded = () => {
       });
 
       $playerSlider.noUiSlider.set(currentTime);
-      $playerPenaltyCut.style.width = `${((maxTime - 14400) * 100) / maxTime}%`;
+      $playerPenaltyCut.style.width = `${((maxTime - selectedRaceTime) * 100) / maxTime}%`;
       $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
       $playerButton.classList.remove('dl-feature-player__button--stop');
@@ -587,7 +604,7 @@ const DOMContentLoaded = () => {
       shownTeams = [];
       drawParticipantPaths();
 
-      $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, maxTime, scales.cpColor);
+      $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, selectedRaceTime, maxTime, scales.cpColor);
 
       addTableRowsEventListeners();
     });
@@ -634,7 +651,8 @@ const DOMContentLoaded = () => {
 
     // Parse races data
     racesData = parseRacesData(rawData.slice(0, -1), races);
-    selectedRaceTeams = racesData.find(rd => rd.id === selectedRace).teams;
+    const selectedRaceData = racesData.find(rd => rd.id === selectedRace);
+    selectedRaceTeams = selectedRaceData.teams;
     selectedRaceParticipants = flatten(selectedRaceTeams.map(srt => srt.participants));
     maxTime = Math.max(...selectedRaceTeams.map(srt => srt.time));
 
@@ -674,7 +692,8 @@ const DOMContentLoaded = () => {
       placeParticipantMarksOnMap();
     });
 
-    $playerPenaltyCut.style.width = `${((maxTime - 14400) * 100) / maxTime}%`;
+    const selectedRaceTime = selectedRaceData.time;
+    $playerPenaltyCut.style.width = `${((maxTime - selectedRaceTime) * 100) / maxTime}%`;
     $playerTime.innerHTML = secondsToHHMMSS(currentTime);
 
     // Player
@@ -827,7 +846,7 @@ const DOMContentLoaded = () => {
     placeParticipantMarksOnMap();
 
     $tableContainer = document.querySelector('.dl-feature__table-container');
-    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, maxTime, scales.cpColor);
+    $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, selectedRaceTime, maxTime, scales.cpColor);
 
     $tableHeader = document.querySelector('.dl-table__header');
     $tableBody = document.querySelector('.dl-table__body');
