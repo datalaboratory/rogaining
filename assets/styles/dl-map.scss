@@ -5,7 +5,6 @@
 
   flex-shrink: 0;
 
-  width: calc(600 * 1.417px);
   height: 100%;
 
   &__background-image {
@@ -16,7 +15,7 @@
     height: 100%;
 
     opacity: 0.2;
-    background-image: url('../img/Финал2017-75.jpg');
+    background-image: url('../img/winter-map.png');
     background-size: 100% 100%;
   }
 
@@ -38,6 +37,10 @@
 
     dominant-baseline: central;
     fill: #666;
+  }
+
+  &__checkpoint-caption-start {
+    text-anchor: end;
   }
 
   &__participant-path {

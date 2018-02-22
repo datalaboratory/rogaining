@@ -29,116 +29,53 @@ import tableTemplate from './templates/tableTemplate';
 // Globals
 const races = [
   {
-    fileName: 'Split_rogaining_Final_Kubka - М4Б.csv',
+    fileName: 'Зимний Рогейн - М2Л.csv',
     group: 'Мужчины',
-    title: '4 часа бегом',
-    id: 'М 4 (бег)',
-    time: 14400,
+    title: '2 часа на лыжах',
+    id: 'М 2 (лыжи)',
+    time: 7200,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - М4Б_Ю.csv',
+    fileName: 'Зимний Рогейн - М3Б.csv',
     group: 'Мужчины',
-    title: '4 часа бегом (юниоры)',
-    id: 'М (ю) 4 (бег)',
-    time: 14400,
+    title: '3 часа бегом',
+    id: 'М 3 (бег)',
+    time: 10800,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - М4Б_В.csv',
+    fileName: 'Зимний Рогейн - М6Л.csv',
     group: 'Мужчины',
-    title: '4 часа бегом (ветераны)',
-    id: 'М (в) 4 (бег)',
-    time: 14400,
+    title: '6 часов на лыжах',
+    id: 'М 6 (лыжи)',
+    time: 21600,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - М4Б_СВ.csv',
-    group: 'Мужчины',
-    title: '4 часа бегом (суперветераны)',
-    id: 'М (св) 4 (бег)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - М4В.csv',
-    group: 'Мужчины',
-    title: '4 часа на велосипеде',
-    id: 'М 4 (вело)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - М4В_В.csv',
-    group: 'Мужчины',
-    title: '4 часа на велосипеде (ветераны)',
-    id: 'М (в) 4 (вело)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4Б.csv',
+    fileName: 'Зимний Рогейн - Ж2Л.csv',
     group: 'Женщины',
-    title: '4 часа бегом',
-    id: 'Ж 4 (бег)',
-    time: 14400,
+    title: '2 часа на лыжах',
+    id: 'Ж 2 (лыжи)',
+    time: 7200,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_Ю.csv',
+    fileName: 'Зимний Рогейн - Ж3Б.csv',
     group: 'Женщины',
-    title: '4 часа бегом (юниоры)',
-    id: 'Ж (ю) 4 (бег)',
-    time: 14400,
+    title: '3 часа бегом',
+    id: 'Ж 3 (бег)',
+    time: 10800,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_В.csv',
+    fileName: 'Зимний Рогейн - Ж6Л.csv',
     group: 'Женщины',
-    title: '4 часа бегом (ветераны)',
-    id: 'Ж (в) 4 (бег)',
-    time: 14400,
+    title: '6 часов на лыжах',
+    id: 'Ж 6 (лыжи)',
+    time: 21600,
   },
   {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4Б_СВ.csv',
-    group: 'Женщины',
-    title: '4 часа бегом (суперветераны)',
-    id: 'Ж (св) 4 (бег)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4В.csv',
-    group: 'Женщины',
-    title: '4 часа на велосипеде',
-    id: 'Ж 4 (вело)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - Ж4В_В.csv',
-    group: 'Женщины',
-    title: '4 часа на велосипеде (ветераны)',
-    id: 'Ж (в) 4 (вело)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б.csv',
+    fileName: 'Зимний Рогейн - МЖ6Л.csv',
     group: 'Мужчины и женщины',
-    title: '4 часа бегом',
-    id: 'М+Ж 4 (бег)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_Ю.csv',
-    group: 'Мужчины и женщины',
-    title: '4 часа бегом (юниоры)',
-    id: 'М+Ж (ю) 4 (бег)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - МЖ4Б_В.csv',
-    group: 'Мужчины и женщины',
-    title: '4 часа бегом (ветераны)',
-    id: 'М+Ж (в) 4 (бег)',
-    time: 14400,
-  },
-  {
-    fileName: 'Split_rogaining_Final_Kubka - МЖ4В.csv',
-    group: 'Мужчины и женщины',
-    title: '4 часа на велосипеде',
-    id: 'М+Ж 4 (вело)',
-    time: 14400,
+    title: '6 часов на лыжах',
+    id: 'МЖ 6 (лыжи)',
+    time: 21600,
   },
 ];
 
@@ -174,7 +111,7 @@ const defaultCheckpointRadius = 3;
 let coordinates;
 let links;
 let racesData;
-let selectedRace = 'М 4 (бег)';
+let selectedRace = 'М 3 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
 let shownTeams = [];
@@ -229,8 +166,12 @@ const updateCheckpoints = () => {
     .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
 
   d3checkpointCaptions
-    .attr('dx', d => (isCheckpointPopularityChecked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3))
-    .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5));
+    .attr('dx', (d) => {
+      if (d.name === 'Старт') return '-6px';
+      return (isCheckpointPopularityChecked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3);
+    })
+    .style('opacity', d => (d.popularity || d.name === 'Старт' ? 1 : 0.5))
+    .classed('dl-map__checkpoint-caption-start', d => d.name === 'Старт');
 };
 
 // Update links
@@ -739,16 +680,16 @@ const DOMContentLoaded = () => {
 
     const pixels = {
       start: {
-        left: 820,
-        top: 220,
-        right: 802,
-        bottom: 924,
+        left: 934,
+        top: 784,
+        right: 1066,
+        bottom: 1243,
       },
       common: {
-        left: 696,
-        top: 304,
-        right: 926,
-        bottom: 840,
+        left: 1032,
+        top: 795,
+        right: 968,
+        bottom: 1232,
       },
     };
 

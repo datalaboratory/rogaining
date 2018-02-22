@@ -7,7 +7,7 @@ const featureTemplate = (races, selectedRace, checkboxes) =>
   `
     <div class="dl-feature">
       <div class="dl-feature__header">
-        <div class="dl-feature__header-caption">Финал кубка «Золотой маршрут» 2017</div>
+        <div class="dl-feature__header-caption">Зимний рогейн 2018</div>
         ${raceSelectTemplate(races, selectedRace)}
       </div>
       <div class="dl-feature__map-checkboxes-and-logo-container">

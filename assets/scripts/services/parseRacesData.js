@@ -87,7 +87,7 @@ const parseRacesData = (rawData, races) =>
         // Participant data contains of two objects — static data and checkpoints data
         {
           number: rd['Номер'],
-          teamName: rd['Команда'],
+          teamName: rd['Команда'] || '—',
           name: capitalizeFirstLetter(rd['Имя'].toLowerCase()),
           surname: capitalizeFirstLetter(rd['Фамилия'].toLowerCase()),
           yearOfBirth: rd['Г.р.'],
