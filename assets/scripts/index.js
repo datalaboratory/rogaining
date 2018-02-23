@@ -443,6 +443,7 @@ const addTableRowsEventListeners = () => {
 };
 
 const addTableMarksEventListeners = () => {
+  console.log('add table marks listeners')
   document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
     $tr.querySelectorAll('.dl-table__checkpoint').forEach(($markGroup, j) => {
       const team = selectedRaceTeams[i];
@@ -451,6 +452,7 @@ const addTableMarksEventListeners = () => {
       const previuosTimeFromStart = Math.max(...team.participants.map(p => p.checkpoints[j].fromStart));
 
       $markGroup.addEventListener('mousemove', (e) => {
+        console.log(team, checkpoint.name, $tableCheckpointTooltip)
         $tableCheckpointTooltip.innerHTML = tableCheckpointTooltipTemplate({
           color: scales.cpColor(checkpoint.name[0]),
           name: checkpoint.name,
@@ -546,8 +548,10 @@ const DOMContentLoaded = () => {
       drawParticipantPaths();
 
       $tableContainer.innerHTML = tableTemplate(selectedRaceTeams, selectedRaceTime, maxTime, scales.cpColor);
+      $tableCheckpointTooltip = document.querySelector('.dl-table__tooltip-container');
 
       addTableRowsEventListeners();
+      addTableMarksEventListeners();
     });
   });
 
@@ -581,11 +585,11 @@ const DOMContentLoaded = () => {
   const q = d3queue();
 
   races.forEach((r) => {
-    q.defer(d3csv, `/data/${r.fileName}`);
+    q.defer(d3csv, `data/${r.fileName}`);
   });
 
-  q.defer(d3csv, '/data/Протокол.csv');
-  q.defer(d3csv, '/data/Координаты.csv');
+  q.defer(d3csv, 'data/Протокол.csv');
+  q.defer(d3csv, 'data/Координаты.csv');
 
   q.awaitAll((error, rawData) => {
     if (error) throw error;
