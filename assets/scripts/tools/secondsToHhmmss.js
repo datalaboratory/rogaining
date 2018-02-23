@@ -10,7 +10,7 @@ const secondsToHHMMSS = (seconds) => {
     if (+hhmmss[i] || result.length) result.push(result.length ? hhmmss[i] : +hhmmss[i]);
   }
 
-  if (!result.length) return 0;
+  if (!result.length) return '0:00';
 
   return result.join(':');
 };

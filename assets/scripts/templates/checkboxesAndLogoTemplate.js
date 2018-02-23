@@ -14,6 +14,9 @@ const checkboxesAndLogoTemplate = (checkboxes) => {
 
   return `
     <div class="dl-checkboxes-and-logo">
+      <div class="dl-checkboxes-and-logo__caption">Баллы на КП</div>
+      <div class="dl-checkboxes-and-logo__checkpoint-legend"></div>
+      <div class="dl-checkboxes-and-logo__caption">Показать</div>
       ${checkboxContainers}
       <div class="dl-checkboxes-and-logo__logo">
         <img src="img/logo.png" />

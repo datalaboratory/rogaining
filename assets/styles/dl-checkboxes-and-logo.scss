@@ -4,15 +4,11 @@
   display: flex;
   flex-direction: column;
 
-  margin-top: 8px;
   margin-left: 30px;
 
   &__checkbox-container {
     font-family: $sans-serif;
-
-    &:not(:first-child) {
-      margin-top: 10px;
-    }
+    margin-top: 10px;
 
     & input {
       margin-right: 5px;
@@ -32,11 +28,37 @@
     }
   }
 
+  &__caption {
+    font-family: $sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+
+    margin-left: 29px;
+    margin-bottom: -4px;
+  }
+
+  &__checkpoint-legend {
+    margin-left: 28px;
+    padding: 19px 0 33px;
+  }
+
+  &__checkpoint {
+    margin-right: 2px;
+    padding: 5px 9px;
+
+    font-size: 14px;
+    font-family: $sans-serif;
+
+    background: #090;
+    border-radius: 20px;
+  }
+
   &__logo {
     display: flex;
     flex-direction: column;
 
     margin-top: auto;
+    margin-left: 30px;
 
     font-family: $sans-serif;
     font-size: 14px;

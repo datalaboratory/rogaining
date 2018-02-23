@@ -443,7 +443,6 @@ const addTableRowsEventListeners = () => {
 };
 
 const addTableMarksEventListeners = () => {
-  console.log('add table marks listeners')
   document.querySelectorAll('.dl-table__body .dl-table__row').forEach(($tr, i) => {
     $tr.querySelectorAll('.dl-table__checkpoint').forEach(($markGroup, j) => {
       const team = selectedRaceTeams[i];
@@ -452,7 +451,6 @@ const addTableMarksEventListeners = () => {
       const previuosTimeFromStart = Math.max(...team.participants.map(p => p.checkpoints[j].fromStart));
 
       $markGroup.addEventListener('mousemove', (e) => {
-        console.log(team, checkpoint.name, $tableCheckpointTooltip)
         $tableCheckpointTooltip.innerHTML = tableCheckpointTooltipTemplate({
           color: scales.cpColor(checkpoint.name[0]),
           name: checkpoint.name,
@@ -681,6 +679,10 @@ const DOMContentLoaded = () => {
     scales.cpColor
       .domain(uniqCpPoints)
       .range(getSequentialColors(uniqCpPoints.length));
+
+    document.querySelector('.dl-checkboxes-and-logo__checkpoint-legend').innerHTML = uniqCpPoints.map(p => `
+      <span class="dl-checkboxes-and-logo__checkpoint" style="background: ${scales.cpColor(p)};">${p}</span>
+    `).join('');
 
     const pixels = {
       start: {
