@@ -25,6 +25,7 @@ import parseRacesData from './services/parseRacesData';
 import secondsToHHMMSS from './tools/secondsToHHMMSS';
 import tableCheckpointTooltipTemplate from './templates/tableCheckpointTooltipTemplate';
 import tableTemplate from './templates/tableTemplate';
+import updateCheckpointsMinTime from './services/updateCheckpointsMinTime';
 
 // Globals
 const races = [
@@ -111,6 +112,7 @@ const defaultCheckpointRadius = 3;
 let coordinates;
 let links;
 let racesData;
+let minCPTimes = {};
 let selectedRace = 'М 3 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
@@ -118,7 +120,9 @@ let shownTeams = [];
 let maxTime;
 let currentTime = 0;
 let intervalId;
+let isPathPopularityChecked = false;
 
+let $checkboxes;
 let $player;
 let $playerButton;
 let $playerSlider;
@@ -195,6 +199,20 @@ const updateLinks = () => {
   d3links.style('stroke-width', d => (document.getElementById('dl-show-paths-popularity').checked || !d.popularity ?
     scales.linkWidth(d.popularity) :
     linkStrokeWidth));
+};
+
+const filterLinks = () => {
+  d3links.classed('dl-map__link--hidden', ({ from, to }) => {
+    if (isPathPopularityChecked) return false;
+
+    const minTime = Math.min(
+      minCPTimes[to] && minCPTimes[to].to[from] ? minCPTimes[to].to[from] : Infinity,
+      minCPTimes[from] && minCPTimes[from].to[to] ? minCPTimes[from].to[to] : Infinity,
+    );
+
+    return !((minCPTimes[from] && minCPTimes[from].to[to]) || (minCPTimes[to] && minCPTimes[to].to[from])) ||
+      (minTime > currentTime);
+  });
 };
 
 // Draw participant paths
@@ -536,8 +554,11 @@ const DOMContentLoaded = () => {
       $playerButton.classList.remove('dl-feature-player__button--stop');
       clearInterval(intervalId);
 
+      minCPTimes = updateCheckpointsMinTime(coordinates, racesData.find(rd => rd.id === selectedRace));
+
       updateCheckpoints();
       updateLinks();
+      filterLinks();
       initParicipantMarks();
       setParticipantsCoordinates();
       placeParticipantMarksOnMap();
@@ -554,7 +575,7 @@ const DOMContentLoaded = () => {
   });
 
   // Checkboxes
-  const $checkboxes = document.querySelectorAll('.dl-checkboxes-and-logo input');
+  $checkboxes = document.querySelectorAll('.dl-checkboxes-and-logo input');
 
   $checkboxes.forEach(($c, i) => {
     $c.addEventListener('change', () => {
@@ -562,9 +583,11 @@ const DOMContentLoaded = () => {
         d3checkpointMarks.attr('r', d => ($c.checked ? scales.cpRadius(d.popularity) : defaultCheckpointRadius));
         d3checkpointCaptions.attr('dx', d => ($c.checked ? scales.cpRadius(d.popularity) + 3 : defaultCheckpointRadius + 3));
       } else if (checkboxes[i].id === 'dl-show-paths-popularity') {
+        isPathPopularityChecked = $c.checked;
         d3links.style('stroke-width', d => ($c.checked || !d.popularity ?
           scales.linkWidth(d.popularity) :
           linkStrokeWidth));
+        filterLinks();
       }
     });
   });
@@ -633,6 +656,7 @@ const DOMContentLoaded = () => {
 
       setParticipantsCoordinates();
       placeParticipantMarksOnMap();
+      filterLinks();
     });
 
     const selectedRaceTime = selectedRaceData.time;
@@ -660,6 +684,7 @@ const DOMContentLoaded = () => {
 
             setParticipantsCoordinates();
             placeParticipantMarksOnMap();
+            filterLinks();
           }
 
           $playerSlider.noUiSlider.set(currentTime);
@@ -669,7 +694,8 @@ const DOMContentLoaded = () => {
     });
 
     // Parse coordinates data
-    coordinates = parseCoordinatesData(lastOf(rawData));
+    coordinates = parseCoordinatesData(lastOf(rawData), racesData);
+    minCPTimes = updateCheckpointsMinTime(coordinates, selectedRaceData);
     links = getPossibleLinks(coordinates);
 
     const uniqCpPoints = uniq(coordinates.map(c => +c.name[0]))
@@ -682,7 +708,7 @@ const DOMContentLoaded = () => {
 
     document.querySelector('.dl-checkboxes-and-logo__checkpoint-legend').innerHTML = uniqCpPoints.map(p => `
       <span class="dl-checkboxes-and-logo__checkpoint" style="background: ${scales.cpColor(p)};">${p}</span>
-    `).join('');
+    `).join('')
 
     const pixels = {
       start: {
@@ -749,6 +775,7 @@ const DOMContentLoaded = () => {
       .attr('y1', d => scales.y(d.y1))
       .attr('x2', d => scales.x(d.x2))
       .attr('y2', d => scales.y(d.y2));
+    filterLinks();
 
     // Add checkpoints
     d3checkpointsGroup = d3rootGroup
