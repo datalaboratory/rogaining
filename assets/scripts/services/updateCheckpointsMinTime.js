@@ -19,12 +19,6 @@ export default (coordinates, selectedRaceData) => {
       }
     });
   });
-  // coordinates.forEach((c) => {
-  //   minCPTimes[c.name] = Math.min.apply(null, selectedRaceData.teams
-  //     .map(({ participants }) => {
-  //       const cp = participants[0].checkpoints.find(({ name }, i) => name === c.name && i !== 0);
-  //       return (cp && cp.fromStart) || (cp && cp.fromStart !== 0 && +Infinity) || (!cp && +Infinity) || cp.fromStart;
-  //     }));
-  // });
+
   return minCPTimes;
 };

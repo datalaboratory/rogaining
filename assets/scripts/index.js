@@ -415,6 +415,7 @@ const setParticipantsCoordinates = () => {
     } else {
       const nextCoordinates = coordinates.find(c => c.name === nextCP.name);
       const currentCoordinates = coordinates.find(c => c.name === currentCP.name);
+      if (!nextCoordinates || !currentCoordinates) return;
       const xSpeed = (nextCoordinates.x - currentCoordinates.x) /
         (nextCP.fromStart - currentCP.fromStart);
       const ySpeed = (nextCoordinates.y - currentCoordinates.y) /
@@ -433,8 +434,7 @@ const placeParticipantMarksOnMap = () => {
     .attr('cy', d => scales.y(d.y));
 
   d3participantCaptions
-    .style('left', d => `${scales.x(d.x) + margin.left + 13}px`)
-    .style('top', d => `${(scales.y(d.y) + margin.top) - 13}px`);
+    .style('transform', d => `translate(${scales.x(d.x) + margin.left + 13}px,${(scales.y(d.y) + margin.top) - 13}px)`);
 };
 
 // Add event listeners to table rows
@@ -520,6 +520,9 @@ const DOMContentLoaded = () => {
   });
 
   $raceSelectOptions.forEach(($o1, i) => {
+    if (races[i].id === selectedRace) {
+      $o1.classList.add('dl-race-select__option--selected');
+    }
     $o1.addEventListener('click', () => {
       selectedRace = races[i].id;
       const selectedRaceTime = races[i].time;
@@ -630,6 +633,7 @@ const DOMContentLoaded = () => {
 
     nouislider
       .create($playerSlider, {
+        animate: false,
         start: 0,
         connect: [
           true,
