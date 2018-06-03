@@ -16,6 +16,7 @@ import nouislider from 'nouislider';
 import featureTemplate from './templates/featureTemplate';
 import getAngleBetweenPoints from './tools/getAngleBetweenPoints';
 import getDistanceBetweenPoints from './tools/getDistanceBetweenPoints';
+import getPointsFromCpName from './services/getPointsFromCpName';
 import getPossibleLinks from './services/getPossibleLinks';
 import getSequentialColors from './services/getSequentialColors';
 import hexWithAlphaToRGB from './tools/hexWithAlphaToRGB';
@@ -30,53 +31,74 @@ import updateCheckpointsMinTime from './services/updateCheckpointsMinTime';
 // Globals
 const races = [
   {
-    fileName: 'Зимний Рогейн - М2Л.csv',
+    fileName: 'Ранняя Весна - М2Б.csv',
     group: 'Мужчины',
-    title: '2 часа на лыжах',
-    id: 'М 2 (лыжи)',
+    title: '2 часа бегом',
+    id: 'М 2 (бег)',
     time: 7200,
   },
   {
-    fileName: 'Зимний Рогейн - М3Б.csv',
+    fileName: 'Ранняя Весна - М2В.csv',
     group: 'Мужчины',
-    title: '3 часа бегом',
-    id: 'М 3 (бег)',
-    time: 10800,
-  },
-  {
-    fileName: 'Зимний Рогейн - М6Л.csv',
-    group: 'Мужчины',
-    title: '6 часов на лыжах',
-    id: 'М 6 (лыжи)',
-    time: 21600,
-  },
-  {
-    fileName: 'Зимний Рогейн - Ж2Л.csv',
-    group: 'Женщины',
-    title: '2 часа на лыжах',
-    id: 'Ж 2 (лыжи)',
+    title: '2 часа верхом',
+    id: 'М 2 (верхом)',
     time: 7200,
   },
   {
-    fileName: 'Зимний Рогейн - Ж3Б.csv',
-    group: 'Женщины',
-    title: '3 часа бегом',
-    id: 'Ж 3 (бег)',
-    time: 10800,
+    fileName: 'Ранняя Весна - М5Б.csv',
+    group: 'Мужчины',
+    title: '5 часов бегом',
+    id: 'М 5 (бег)',
+    time: 18000,
   },
   {
-    fileName: 'Зимний Рогейн - Ж6Л.csv',
-    group: 'Женщины',
-    title: '6 часов на лыжах',
-    id: 'Ж 6 (лыжи)',
-    time: 21600,
+    fileName: 'Ранняя Весна - М5В.csv',
+    group: 'Мужчины',
+    title: '5 часов верхом',
+    id: 'М 5 (верхом)',
+    time: 18000,
   },
   {
-    fileName: 'Зимний Рогейн - МЖ6Л.csv',
+    fileName: 'Ранняя Весна - Ж2Б.csv',
+    group: 'Женщины',
+    title: '2 часа бегом',
+    id: 'Ж 2 (бег)',
+    time: 7200,
+  },
+  {
+    fileName: 'Ранняя Весна - Ж2В.csv',
+    group: 'Женщины',
+    title: '2 часа верхом',
+    id: 'Ж 2 (верхом)',
+    time: 7200,
+  },
+  {
+    fileName: 'Ранняя Весна - Ж5Б.csv',
+    group: 'Женщины',
+    title: '5 часов бегом',
+    id: 'Ж 5 (бег)',
+    time: 18000,
+  },
+  {
+    fileName: 'Ранняя Весна - Ж5В.csv',
+    group: 'Женщины',
+    title: '5 часов верхом',
+    id: 'Ж 5 (верхом)',
+    time: 18000,
+  },
+  {
+    fileName: 'Ранняя Весна - МЖ5Б.csv',
     group: 'Мужчины и женщины',
-    title: '6 часов на лыжах',
-    id: 'МЖ 6 (лыжи)',
-    time: 21600,
+    title: '5 часов бегом',
+    id: 'МЖ 5 (бег)',
+    time: 18000,
+  },
+  {
+    fileName: 'Ранняя Весна - МЖ5В.csv',
+    group: 'Мужчины и женщины',
+    title: '5 часов верхом',
+    id: 'МЖ 5 (верхом)',
+    time: 18000,
   },
 ];
 
@@ -113,7 +135,7 @@ let coordinates;
 let links;
 let racesData;
 let minCPTimes = {};
-let selectedRace = 'М 3 (бег)';
+let selectedRace = 'М 2 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
 let shownTeams = [];
@@ -187,7 +209,14 @@ const updateLinks = () => {
           .map(cp => cp.name)
           .join('-');
 
-        return (path.indexOf(`${l.from}-${l.to}`) !== -1 || path.indexOf(`${l.to}-${l.from}`) !== -1) ?
+        return (
+          path.indexOf(`-${l.from}-${l.to}-`) !== -1 ||
+          path.indexOf(`-${l.to}-${l.from}-`) !== -1 ||
+          (path.indexOf(`${l.from}-${l.to}-`) !== -1 && l.from === 'Старт') ||
+          (path.indexOf(`${l.to}-${l.from}-`) !== -1 && l.to === 'Старт') ||
+          (path.indexOf(`-${l.from}-${l.to}`) !== -1 && l.to === 'Старт') ||
+          (path.indexOf(`-${l.to}-${l.from}`) !== -1 && l.from === 'Старт')
+        ) ?
           1 :
           0;
       })
@@ -470,7 +499,7 @@ const addTableMarksEventListeners = () => {
 
       $markGroup.addEventListener('mousemove', (e) => {
         $tableCheckpointTooltip.innerHTML = tableCheckpointTooltipTemplate({
-          color: scales.cpColor(checkpoint.name[0]),
+          color: scales.cpColor(getPointsFromCpName(checkpoint.name)),
           name: checkpoint.name,
           timeFromStart,
           timeFromPrevious: timeFromStart - previuosTimeFromStart,
@@ -612,8 +641,8 @@ const DOMContentLoaded = () => {
     q.defer(d3csv, `data/${r.fileName}`);
   });
 
-  q.defer(d3csv, 'data/Протокол.csv');
-  q.defer(d3csv, 'data/Координаты.csv');
+  //q.defer(d3csv, 'data/Протокол.csv');
+  q.defer(d3csv, 'data/КоординатыТест.csv');
 
   q.awaitAll((error, rawData) => {
     if (error) throw error;
@@ -702,7 +731,7 @@ const DOMContentLoaded = () => {
     minCPTimes = updateCheckpointsMinTime(coordinates, selectedRaceData);
     links = getPossibleLinks(coordinates);
 
-    const uniqCpPoints = uniq(coordinates.map(c => +c.name[0]))
+    const uniqCpPoints = uniq(coordinates.map(c => getPointsFromCpName(c.name)))
       .filter(Boolean)
       .sort((a, b) => a - b);
 
@@ -712,24 +741,26 @@ const DOMContentLoaded = () => {
 
     document.querySelector('.dl-checkboxes-and-logo__checkpoint-legend').innerHTML = uniqCpPoints.map(p => `
       <span class="dl-checkboxes-and-logo__checkpoint" style="background: ${scales.cpColor(p)};">${p}</span>
-    `).join('')
+    `).join('');
 
+    const imageW = 2000;
+    const imageH = 2911;
     const pixels = {
-      start: {
-        left: 934,
-        top: 784,
-        right: 1066,
-        bottom: 1243,
+      start: { //100
+        left: 794,
+        top: 1470,
+        right: imageW - 794,
+        bottom: imageH - 1470,
       },
-      common: {
-        left: 1032,
-        top: 795,
-        right: 968,
-        bottom: 1232,
+      common: { //16
+        left: 888,
+        top: 1430,
+        right: imageW - 888,
+        bottom: imageH - 1430,
       },
     };
 
-    const commonCP = coordinates.find(c => c.name === '32');
+    const commonCP = coordinates.find(c => c.name === '16');
     const startCP = coordinates.find(c => c.name === 'Старт');
 
     const mPerPx = (
@@ -751,11 +782,11 @@ const DOMContentLoaded = () => {
     $mapCheckboxesContainer.style.visibility = 'visible';
     $player.style.visibility = 'visible';
     scales.x
-      .domain([xMin, xMax])
-      .range([0, width - margin.left - margin.right]);
+      .domain([xMin * 0.95, xMax * 0.985])
+      .range([-0.5, width - margin.left - margin.right]);
 
     scales.y
-      .domain([yMin, yMax])
+      .domain([yMin* 0.98, yMax * 0.975])
       .range([height - margin.top - margin.bottom, 0]);
 
     participantPathGenerator
@@ -797,7 +828,7 @@ const DOMContentLoaded = () => {
     d3checkpointMarks = d3checkpointGroups
       .append('circle')
       .attr('class', 'dl-map__checkpoint-mark')
-      .style('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(d.name[0])))
+      .style('fill', d => (d.name === 'Старт' ? '#fff' : scales.cpColor(getPointsFromCpName(d.name))))
       .style('stroke', d => (d.name === 'Старт' ? '#666' : '#fff'));
 
     d3checkpointCaptions = d3checkpointGroups

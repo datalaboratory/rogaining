@@ -1,3 +1,4 @@
+import getPointsFromCpName from '../services/getPointsFromCpName';
 import secondsToHHMMSS from '../tools/secondsToHHMMSS';
 
 const tableTemplate = (selectedRaceTeams, selectedRaceTime, maxTime, cpColorScale) => {
@@ -14,7 +15,7 @@ const tableTemplate = (selectedRaceTeams, selectedRaceTime, maxTime, cpColorScal
         const ucp = srt.participants[0].checkpoints[j];
 
         const cpd = {
-          color: cpColorScale(ucp.name[0]),
+          color: cpColorScale(getPointsFromCpName(ucp.name)),
           height: (ucpParticipants.length * 100) / srt.participants.length,
           fromStart: Math.max(...ucpParticipants.map(p => p.checkpoints[j].fromStart)),
         };

@@ -1,3 +1,4 @@
+import getPointsFromCpName from '../services/getPointsFromCpName';
 import groupby from 'lodash.groupby';
 
 import capitalizeFirstLetter from '../tools/capitalizeFirstLetter';
@@ -6,19 +7,29 @@ import lastOf from '../tools/lastOf';
 
 // Apply protocol adjustment
 const applyProtocolAdjustment = (participant, protocol, raceTime) => {
-  const participantData = {
-    points: 0,
-    time: HHMMSSToSeconds(participant['Результат']),
-    checkpoints: Object.keys(participant)
-      .filter(key =>
+    const checkpoints = Object.keys(participant)
+        .filter(key =>
         key.indexOf('#') !== -1 &&
         participant[key] &&
         participant[key].match(/\[(.*?)\]/))
-      .sort((a, b) => +a.split('#')[1] - +b.split('#')[1])
-      .map(key => ({
-        name: participant[key].match(/\[(.*?)\]/)[1],
-        fromStart: HHMMSSToSeconds(participant[key].split('[')[0]),
-      })),
+        .sort((a, b) => +a.split('#')[1] - +b.split('#')[1])
+        .map(key => ({
+            name: participant[key].match(/\[(.*?)\]/)[1],
+            fromStart: HHMMSSToSeconds(participant[key].split('[')[0]),
+        }));
+  const participantData = {
+    points: 0,
+    time: HHMMSSToSeconds(participant['Результат']),
+    checkpoints: checkpoints
+      .map(({ name, fromStart }, i) => {
+        if (i < checkpoints.length - 1 && fromStart > checkpoints[i + 1].fromStart) {
+            return {
+                name,
+                fromStart: checkpoints[i + 1].fromStart - 60,
+            };
+        }
+          return {name, fromStart};
+      }),
     adjustmentErrors: [],
   };
 
@@ -65,7 +76,7 @@ const applyProtocolAdjustment = (participant, protocol, raceTime) => {
 
   if (participantData.time) {
     participantData.points = participantData.checkpoints
-      .map(cp => +(cp.name.indexOf('-') === -1 ? cp.name[0] : cp.name.split('-')[1]) || 0)
+      .map(cp => +(cp.name.indexOf('-') === -1 ? getPointsFromCpName(cp.name) : cp.name.split('-')[1]) || 0)
       .reduce((a, b) => a + b, 0);
 
     const penalty = Math.ceil((participantData.time - raceTime) / 60);
