@@ -30,53 +30,53 @@ import updateCheckpointsMinTime from './services/updateCheckpointsMinTime';
 // Globals
 const races = [
   {
-    fileName: 'Зимний Рогейн - М2Л.csv',
+    fileName: 'Золото Сенежа, вода, М4П.csv',
     group: 'Мужчины',
-    title: '2 часа на лыжах',
-    id: 'М 2 (лыжи)',
-    time: 7200,
+    title: '4 часа на байдарках',
+    id: 'М 4 (байдарки)',
+    time: 14400,
   },
   {
-    fileName: 'Зимний Рогейн - М3Б.csv',
+    fileName: 'Золото Сенежа, вода, М8П.csv',
     group: 'Мужчины',
-    title: '3 часа бегом',
-    id: 'М 3 (бег)',
-    time: 10800,
+    title: '8 часов на байдарках',
+    id: 'М 8 (байдарки)',
+    time: 28800,
   },
   {
-    fileName: 'Зимний Рогейн - М6Л.csv',
-    group: 'Мужчины',
-    title: '6 часов на лыжах',
-    id: 'М 6 (лыжи)',
-    time: 21600,
-  },
-  {
-    fileName: 'Зимний Рогейн - Ж2Л.csv',
+    fileName: 'Золото Сенежа, вода, Ж4П.csv',
     group: 'Женщины',
-    title: '2 часа на лыжах',
-    id: 'Ж 2 (лыжи)',
-    time: 7200,
+    title: '4 часа на байдарках',
+    id: 'Ж 4 (байдарки)',
+    time: 14400,
   },
   {
-    fileName: 'Зимний Рогейн - Ж3Б.csv',
+    fileName: 'Золото Сенежа, вода, Ж8П.csv',
     group: 'Женщины',
-    title: '3 часа бегом',
-    id: 'Ж 3 (бег)',
-    time: 10800,
+    title: '8 часов на байдарках',
+    id: 'Ж 8 (байдарки)',
+    time: 28800,
   },
   {
-    fileName: 'Зимний Рогейн - Ж6Л.csv',
-    group: 'Женщины',
-    title: '6 часов на лыжах',
-    id: 'Ж 6 (лыжи)',
-    time: 21600,
-  },
-  {
-    fileName: 'Зимний Рогейн - МЖ6Л.csv',
+    fileName: 'Золото Сенежа, вода, МЖ8П.csv',
     group: 'Мужчины и женщины',
-    title: '6 часов на лыжах',
-    id: 'МЖ 6 (лыжи)',
-    time: 21600,
+    title: '8 часов на байдарках',
+    id: 'МЖ 8 (байдарки)',
+    time: 28800,
+  },
+  {
+    fileName: 'Золото Сенежа, вода, Родители-Дети, 4П.csv',
+    group: 'Родители и дети',
+    title: '4 часа на байдарках',
+    id: 'РД 4 (байдарки)',
+    time: 14400,
+  },
+  {
+    fileName: 'Золото Сенежа, вода, Родители-Дети, 8П.csv',
+    group: 'Родители и дети',
+    title: '8 часов на байдарках',
+    id: 'РД 8 (байдарки)',
+    time: 28800,
   },
 ];
 
@@ -113,7 +113,7 @@ let coordinates;
 let links;
 let racesData;
 let minCPTimes = {};
-let selectedRace = 'М 3 (бег)';
+let selectedRace = 'М 4 (байдарки)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
 let shownTeams = [];
@@ -187,7 +187,14 @@ const updateLinks = () => {
           .map(cp => cp.name)
           .join('-');
 
-        return (path.indexOf(`${l.from}-${l.to}`) !== -1 || path.indexOf(`${l.to}-${l.from}`) !== -1) ?
+        return (
+          path.indexOf(`-${l.from}-${l.to}-`) !== -1 ||
+          path.indexOf(`-${l.to}-${l.from}-`) !== -1 ||
+          (path.indexOf(`${l.from}-${l.to}-`) !== -1 && l.from === 'Старт') ||
+          (path.indexOf(`${l.to}-${l.from}-`) !== -1 && l.to === 'Старт') ||
+          (path.indexOf(`-${l.from}-${l.to}`) !== -1 && l.to === 'Старт') ||
+          (path.indexOf(`-${l.to}-${l.from}`) !== -1 && l.from === 'Старт')
+        ) ?
           1 :
           0;
       })
@@ -612,8 +619,8 @@ const DOMContentLoaded = () => {
     q.defer(d3csv, `data/${r.fileName}`);
   });
 
-  q.defer(d3csv, 'data/Протокол.csv');
-  q.defer(d3csv, 'data/Координаты.csv');
+  //q.defer(d3csv, 'data/Протокол.csv');
+  q.defer(d3csv, 'data/КоординатыТест.csv');
 
   q.awaitAll((error, rawData) => {
     if (error) throw error;
@@ -712,24 +719,26 @@ const DOMContentLoaded = () => {
 
     document.querySelector('.dl-checkboxes-and-logo__checkpoint-legend').innerHTML = uniqCpPoints.map(p => `
       <span class="dl-checkboxes-and-logo__checkpoint" style="background: ${scales.cpColor(p)};">${p}</span>
-    `).join('')
+    `).join('');
 
+    const imageW = 2664;
+    const imageH = 3785;
     const pixels = {
-      start: {
-        left: 934,
-        top: 784,
-        right: 1066,
-        bottom: 1243,
+      start: { // Старт
+        left: 1117,
+        top: 2309,
+        right: imageW - 1117,
+        bottom: imageH - 2309,
       },
-      common: {
-        left: 1032,
-        top: 795,
-        right: 968,
-        bottom: 1232,
+      common: { // 40
+        left: 812,
+        top: 2592,
+        right: imageW - 812,
+        bottom: imageH - 2592,
       },
     };
 
-    const commonCP = coordinates.find(c => c.name === '32');
+    const commonCP = coordinates.find(c => c.name === '40');
     const startCP = coordinates.find(c => c.name === 'Старт');
 
     const mPerPx = (
@@ -750,13 +759,14 @@ const DOMContentLoaded = () => {
     $player.style.width = `${width}px`;
     $mapCheckboxesContainer.style.visibility = 'visible';
     $player.style.visibility = 'visible';
+
     scales.x
       .domain([xMin, xMax])
-      .range([0, width - margin.left - margin.right]);
+      .range([1, width - margin.left - margin.right]);
 
     scales.y
       .domain([yMin, yMax])
-      .range([height - margin.top - margin.bottom, 0]);
+      .range([height - margin.top - margin.bottom, 3]);
 
     participantPathGenerator
       .x(d => scales.x(d.x))
