@@ -7,7 +7,7 @@ const featureTemplate = (races, selectedRace, checkboxes, colorScale) =>
   `
     <div class="dl-feature">
       <div class="dl-feature__header">
-        <div class="dl-feature__header-caption">Золото Сенежа, вода, 2018</div>
+        <div class="dl-feature__header-caption">Золото Сенежа, суша, 2018</div>
         ${raceSelectTemplate(races, selectedRace)}
       </div>
       <div class="dl-feature__map-checkboxes-and-logo-container">

@@ -30,53 +30,81 @@ import updateCheckpointsMinTime from './services/updateCheckpointsMinTime';
 // Globals
 const races = [
   {
-    fileName: 'Золото Сенежа, вода, М4П.csv',
+    fileName: 'Золото Сенежа, суша, М4, бег.csv',
     group: 'Мужчины',
-    title: '4 часа на байдарках',
-    id: 'М 4 (байдарки)',
+    title: '4 часа бегом',
+    id: 'М 4 (бег)',
     time: 14400,
   },
   {
-    fileName: 'Золото Сенежа, вода, М8П.csv',
+    fileName: 'Золото Сенежа, суша, М8, бег.csv',
     group: 'Мужчины',
-    title: '8 часов на байдарках',
-    id: 'М 8 (байдарки)',
+    title: '8 часов бегом',
+    id: 'М 8 (бег)',
     time: 28800,
   },
   {
-    fileName: 'Золото Сенежа, вода, Ж4П.csv',
+    fileName: 'Золото Сенежа, суша, М3, вело.csv',
+    group: 'Мужчины',
+    title: '3 часа на велосипеде',
+    id: 'М 3 (вело)',
+    time: 10800,
+  },
+  {
+    fileName: 'Золото Сенежа, суша, М6, вело.csv',
+    group: 'Мужчины',
+    title: '6 часов на велосипеде',
+    id: 'М 6 (вело)',
+    time: 21600,
+  },
+  {
+    fileName: 'Золото Сенежа, суша, Ж4, бег.csv',
     group: 'Женщины',
-    title: '4 часа на байдарках',
-    id: 'Ж 4 (байдарки)',
+    title: '4 часа бегом',
+    id: 'Ж 4 (бег)',
     time: 14400,
   },
   {
-    fileName: 'Золото Сенежа, вода, Ж8П.csv',
+    fileName: 'Золото Сенежа, суша, Ж8, бег.csv',
     group: 'Женщины',
-    title: '8 часов на байдарках',
-    id: 'Ж 8 (байдарки)',
+    title: '8 часов бегом',
+    id: 'Ж 8 (бег)',
     time: 28800,
   },
   {
-    fileName: 'Золото Сенежа, вода, МЖ8П.csv',
+    fileName: 'Золото Сенежа, суша, Ж3, вело.csv',
+    group: 'Женщины',
+    title: '3 часа на велосипеде',
+    id: 'Ж 3 (вело)',
+    time: 10800,
+  },
+  {
+    fileName: 'Золото Сенежа, суша, Ж6, вело.csv',
+    group: 'Женщины',
+    title: '6 часов на велосипеде',
+    id: 'Ж 6 (вело)',
+    time: 21600,
+  },
+  {
+    fileName: 'Золото Сенежа, суша, МЖ6, вело.csv',
     group: 'Мужчины и женщины',
-    title: '8 часов на байдарках',
-    id: 'МЖ 8 (байдарки)',
+    title: '6 часов на велосипеде',
+    id: 'МЖ 6 (вело)',
+    time: 21600,
+  },
+  {
+    fileName: 'Золото Сенежа, суша, МЖ8, бег.csv',
+    group: 'Мужчины и женщины',
+    title: '8 часов бегом',
+    id: 'МЖ 8 (бег)',
     time: 28800,
   },
   {
-    fileName: 'Золото Сенежа, вода, Родители-Дети, 4П.csv',
+    fileName: 'Золото Сенежа, суша, Родители-Дети 1,5 часа.csv',
     group: 'Родители и дети',
-    title: '4 часа на байдарках',
-    id: 'РД 4 (байдарки)',
-    time: 14400,
-  },
-  {
-    fileName: 'Золото Сенежа, вода, Родители-Дети, 8П.csv',
-    group: 'Родители и дети',
-    title: '8 часов на байдарках',
-    id: 'РД 8 (байдарки)',
-    time: 28800,
+    title: '1,5 часа',
+    id: 'РД 1,5',
+    time: 5400,
   },
 ];
 
@@ -113,7 +141,7 @@ let coordinates;
 let links;
 let racesData;
 let minCPTimes = {};
-let selectedRace = 'М 4 (байдарки)';
+let selectedRace = 'М 4 (бег)';
 let selectedRaceTeams;
 let selectedRaceParticipants;
 let shownTeams = [];
@@ -721,24 +749,24 @@ const DOMContentLoaded = () => {
       <span class="dl-checkboxes-and-logo__checkpoint" style="background: ${scales.cpColor(p)};">${p}</span>
     `).join('');
 
-    const imageW = 2664;
-    const imageH = 3785;
+    const imageW = 1900;
+    const imageH = 2702;
     const pixels = {
       start: { // Старт
-        left: 1117,
-        top: 2309,
-        right: imageW - 1117,
-        bottom: imageH - 2309,
+        left: 920,
+        top: 138,
+        right: imageW - 920,
+        bottom: imageH - 138,
       },
-      common: { // 40
-        left: 812,
-        top: 2592,
-        right: imageW - 812,
-        bottom: imageH - 2592,
+      common: { // 31
+        left: 790,
+        top: 181,
+        right: imageW - 790,
+        bottom: imageH - 181,
       },
     };
 
-    const commonCP = coordinates.find(c => c.name === '40');
+    const commonCP = coordinates.find(c => c.name === '31');
     const startCP = coordinates.find(c => c.name === 'Старт');
 
     const mPerPx = (
@@ -762,11 +790,11 @@ const DOMContentLoaded = () => {
 
     scales.x
       .domain([xMin, xMax])
-      .range([1, width - margin.left - margin.right]);
+      .range([6, width - margin.left - margin.right - 5]);
 
     scales.y
       .domain([yMin, yMax])
-      .range([height - margin.top - margin.bottom, 3]);
+      .range([height - margin.top - margin.bottom - 15, 1]);
 
     participantPathGenerator
       .x(d => scales.x(d.x))
